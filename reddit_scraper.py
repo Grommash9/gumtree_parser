@@ -18,6 +18,7 @@ CLIENT_SECRET = "bwTnFcHekESh01FoAGBZoXqJVhNaSg"
 USER_AGENT = "funnelboost-scraper/1.0"
 
 SUBREDDITS = [
+    "SharedOwnershipUK",
     "relationship_advice",
     "relationships",
     "relationships_advice",
