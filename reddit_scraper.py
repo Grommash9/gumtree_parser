@@ -22,6 +22,10 @@ SUBREDDITS = [
     "relationships",
     "relationships_advice",
     "sex",
+    "UKPersonalFinance",
+    "UKInvesting",
+    "smallbusinessuk",
+    "HousingUK",
     "FlippingUK",
     "eBaySellerAdvice",
     "wildcampingintheuk",
@@ -162,7 +166,7 @@ class RedditScraper:
 
             print(f"  Page {page}: {len(posts)} posts | +{page_new} new, {page_skipped} existing | oldest: {oldest_date} | API: {self.rate_limit_remaining:.0f} left")
 
-            if not after:
+            if not after or not page_new:
                 print(f"  End of pagination reached")
                 break
 

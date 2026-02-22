@@ -1,0 +1,321 @@
+{
+  "approved_at_utc": null,
+  "subreddit": "UKInvesting",
+  "selftext": "TLDR: Acquisitions destroy value, however it really depends on the acquisition type done and the location of the company.\n\nI've read a lot about how acquisitions destroy value and recently got access to S&amp;PCapitalIQPro so I wanted to test out if this was true and what types of acquisitions destroyed the most value.\n\nHere are the results for you:\n\nOpen source code I used to generate these results (Too complex a task for excel):  \n[https://github.com/MartinDawson/stock-research-analyzer](https://github.com/MartinDawson/stock-research-analyzer)\n\nWebsite is here: [https://martindawson.github.io/stock-research-analyzer/](https://martindawson.github.io/stock-research-analyzer/)\n\nUS companies that do acquisitions (abnormal returns compared to the SPX index at the same time frame):\n\nhttps://preview.redd.it/t036v8yj7qvd1.png?width=1697&amp;format=png&amp;auto=webp&amp;s=0891bb062d729baa06b6f4c72e5a13a6d2f77e56\n\nSample size of 43k.\n\n* US companies destroyed value overall after they announced the acquisition. Their stock prices dropped by -8.18% by month 20 and then started rebounding but by month 29 they were still down by -5.07%.\n\nPossible causes of the rebound could be that management have impaired and written off goodwill related to the acquisition by this point and realised they have overpaid or most of the acquisition related distractions on business performance has passed at this point.\n\nThis confirms what Aswath Damodaran has been teaching about in his videos &amp; papers about acquisitions.\n\nUK companies that do acquisitions (abnormal returns compared to the FTSE All-Share Index at the same time frame):\n\nhttps://preview.redd.it/qw7lalru7qvd1.png?width=1591&amp;format=png&amp;auto=webp&amp;s=9356b2d3bcabb5024b242cee1fe9198737d54fbd\n\n* UK companies actually created value overall. Modest in the first 20 months, beating the FTSE All Share Index by 3% but by month 29 the gain over the index from these companies was 10.2%. If you toggle the 'absolute returns' radio button on the website, you will see the returns of the acquiring companies without being relative to their respective indexes. You can see that the US companies destroy value both relatively and absolutely with acquisitions while UK companies create it. I have no idea why this gap exists between the UK and US acquiring companies but it does.\n\nI have double &amp; triple checked the source data and cleaned the data and it all looks fine, this was a surprising result to me to see UK acquiring companies do so well relative to the FTSE All share index.\n\nNote: The UK has a lower total sample size of 10k\\~ companies, whereas the US has 40k\\~ companies, however 10k should still be more than enough.\n\nUS companies by type of acquisition:\n\nhttps://preview.redd.it/4dsfw2558qvd1.png?width=1643&amp;format=png&amp;auto=webp&amp;s=197eb8f07b3adc0d526537061b3f96eb3a9169fd\n\nUK companies by type of acquisition:\n\nhttps://preview.redd.it/79zw3fke8qvd1.png?width=1693&amp;format=png&amp;auto=webp&amp;s=9ea4c309110ebbf9f7ad3bf3128901d391331511\n\nI won't go through all of these, you can see the output chart for yourself, however I will comment on the main patterns.\n\nIn both the US and UK their was a very similar pattern.\n\n* Bankruptcy acquisitions were by far the most profitable, resulting in an average abnormal cumulative return since acquisition of 52.77% over 29 months. This makes sense because when companies go bankrupt they do firesales on their assets which means the acquirers can buy them for cheap, including the entire business. The sample size was only 112 companies though so take this with more of a grain of salt.\n* LBO was the second most profitable acquisition type for both US and UK which was very surprising to see. It seems that loading up on debt and acquiring a company seems to produce good returns above the SPX &amp; ASX indexes. Maybe this is because the acquiring company quickly sells down the debt and steamlines the business after by selling non-core assets? I'm not sure but the sample size of 2669 is large and so this is quite clear\n* Management Participated acquisitions seem to do decent as well, giving 8.22% abnormal returns for US and 32% for UK. This might be explained by management putting their own money in as part of the deal so they are more incentivized or confident that the acquisition is correct. Note the small sample size for US companies of 120 and UK of 149 though.\n* Larger cap acquirers seem to perform significantly better than smaller cap acquirers.\n* Companies that do multiple acquisitions still destroy value, but they destroy much less value than companies that do a single acquisition. You can see companies that did a single acquisition had a -60% return for the US and -15% for the UK. This had a large sample size of 3355 as well.\n\nMaybe single acquirers are less experienced on what to look for or more likely to overpay?\n\n* Cash deals give significantly higher returns than stock deals do. US companies cash deals gave 5.55% whereas the stock deals gave -45.29% since the acquisition announcements. A massive difference. This might be explained by acquiring companies being more likely to issue stock for acquisitions if they think their company is overvalued. An overvalued acquirer is going to drop more than a non-overvalued one in the long term. The sample size for cash deals was 16561 and for stock it was 3859 for the US, both very large sample sizes.\n* Companies that have acquired others from 2016 - Today have performed significantly worse for the US than they did from 2000-2007. Whereas the opposite happened for UK companies. I have no real explanation for why this could be.\n* Smaller acquisitions relative to the acquirers market cap destroyed less value than larger acquisitions. If you see the size of 2-10% they returned -8.5% for US companies whereas 50-100% returned -15%. The sample sizes for these are large as well.\n* Minority acquisitions did not do any better than majority acquisitions which is also surprising. Note the sample size of 3k whereas majority had a 40k sample size.\n* Withdrawn &amp; terminated acquisitions surprisingly destroy an insane amount of value still as well. This might be because of the costs and distraction that happens when pursuing the acquisition.\n* Reverse mergers and backdoor ipos seem to be insanely value destructive for US and UK companies and should never be done in any circumstance.\n\nI've also plotted the worst/best drawdowns and peaks for every type of combination (that had a sample size of &gt; 500). For example for the US companies, you can see the worst combination possible of acquisition type here:\n\nhttps://preview.redd.it/asc9ewjt8qvd1.png?width=1645&amp;format=png&amp;auto=webp&amp;s=a657ec6580b3ab582099e3b8b4f7dfebe8906423\n\nWas this one:\n\n    ```json\n    {\"dateRange\":\"2016-today\",\"sizeByTransactionValue\":\"all\",\"publicOrPrivate\":\"private\",\"acquisitionsNumber\":\"all\",\"acquirerMarketCap\":\"all\",\"status\":\"completed\",\"dealType\":\"stockDeal\",\"acquisitionType\":\"majority\"} (Count: 598)\n    ```\n\nThis combination resulted in a massive destruction of capital, worse than all other combinations basically.\n\nYou can have a look at the other tabs yourself and see which ones are the best and worst performing combinations.\n\nNote: The reason the returns go below -100% is because these are since the acquisition was announced. So if the stock price went up in the months preceding the acquisition announcement then it's possible to get a value &gt; -100%.\n\nIf you want to see which specific combination your companies acquisition will return, you can check out the \\`outputRaw/acquisitions/${region}.json\\` file to see the entire dump of all combinations and find the same combination that matches your company.\n\nNote: If their is a small \\`count\\` number then that's because the sample size is very small for that combination and shouldn't be relied upon.\n\nIn the above charts I threw away combinations that had &lt; 500 sample size so that we could get relevant results.\n\n# Data validation\n\nThe most important thing in analysis is clean data or the results are useless. I've taken great care in cleaning the data and validating it by doing the following:\n\n* Using S&amp;PCapitalIQPro which doesn't have survivorship bias in the results &amp; has high quality data.\n* Ran the \\`cleanData.js\\` functions before processing which does the following for share price &amp; index data:\n\n1. Converts \\`''\\` &amp; \\`0\\` to \\`null\\` values in.\n2. Checks if any percentageChange between 2 numbers is \\`&gt; 1000%\\` &amp; \\`&lt; 100%\\`, if it is it sets the entire row to be null values as this is most likely bad data rather than a real Month-On-Month change of share prices.\n3. Filters out companies that have &lt;$10m in marketCap size (\\`minMarketCapForAnalyzingInM\\` in the args). This is needed to stop nano-caps which have ridicilous % changes sometimes Month-On-Month. These don't really reflect true shareholder value either, just liquidity issues &amp; pumps/dumps a lot of times.\n4. A bunch of tests in \\`acquisitionFilters.test.js\\` &amp; \\`calculate.test.js\\`. You can verify them with \\`npm run test\\`.\n\nI also tested using \\`math.js\\` to remove any chance of \\[\\`numerical instability\\`\\](https://en.wikipedia.org/wiki/Numerical\\_stability) when calculating cumulative Month-On-Month changes in share prices, however the slowdown in processing speed wasn't worth the tiny bit extra in precision. The small floating point errors don't effect the results either so it was redundant.\n\nFeel free to run the code yourself or double check my calculations as it's all open source here: [https://github.com/MartinDawson/stock-research-analyzer](https://github.com/MartinDawson/stock-research-analyzer)\n\nWebsite is here: [https://martindawson.github.io/stock-research-analyzer/](https://martindawson.github.io/stock-research-analyzer/)\n\nI will be doing more of these analysis on companies, the next one will be on management compensation and how that is tied to shareholder value/destruction. You can follow the above open source github repo if you are interested.",
+  "author_fullname": "t2_8glpoqzc",
+  "saved": false,
+  "mod_reason_title": null,
+  "gilded": 0,
+  "clicked": false,
+  "title": "A detailed analysis on what types of acquisitions create and destroy value for US &amp; UK companies.",
+  "link_flair_richtext": [],
+  "subreddit_name_prefixed": "r/UKInvesting",
+  "hidden": false,
+  "pwls": 6,
+  "link_flair_css_class": null,
+  "downs": 0,
+  "top_awarded_type": null,
+  "hide_score": false,
+  "media_metadata": {
+    "t036v8yj7qvd1": {
+      "status": "valid",
+      "e": "Image",
+      "m": "image/png",
+      "p": [
+        {
+          "y": 54,
+          "x": 108,
+          "u": "https://preview.redd.it/t036v8yj7qvd1.png?width=108&amp;crop=smart&amp;auto=webp&amp;s=8ae662842ca096e49b5d6ce0380aa80259f6730e"
+        },
+        {
+          "y": 108,
+          "x": 216,
+          "u": "https://preview.redd.it/t036v8yj7qvd1.png?width=216&amp;crop=smart&amp;auto=webp&amp;s=707698ed30d35270c8606f8b4a8b1368b4c79449"
+        },
+        {
+          "y": 161,
+          "x": 320,
+          "u": "https://preview.redd.it/t036v8yj7qvd1.png?width=320&amp;crop=smart&amp;auto=webp&amp;s=9a9efc864942e528ca7327fc54aefde7011579b8"
+        },
+        {
+          "y": 322,
+          "x": 640,
+          "u": "https://preview.redd.it/t036v8yj7qvd1.png?width=640&amp;crop=smart&amp;auto=webp&amp;s=2dea834e314060ceb4b0b76734c5f0ca2a552228"
+        },
+        {
+          "y": 483,
+          "x": 960,
+          "u": "https://preview.redd.it/t036v8yj7qvd1.png?width=960&amp;crop=smart&amp;auto=webp&amp;s=4547956744736b5ecb7e3f33794214234f6308d7"
+        },
+        {
+          "y": 543,
+          "x": 1080,
+          "u": "https://preview.redd.it/t036v8yj7qvd1.png?width=1080&amp;crop=smart&amp;auto=webp&amp;s=7b3e9cfd2d8435c611f9093ade2fdb010183080f"
+        }
+      ],
+      "s": {
+        "y": 854,
+        "x": 1697,
+        "u": "https://preview.redd.it/t036v8yj7qvd1.png?width=1697&amp;format=png&amp;auto=webp&amp;s=0891bb062d729baa06b6f4c72e5a13a6d2f77e56"
+      },
+      "id": "t036v8yj7qvd1"
+    },
+    "4dsfw2558qvd1": {
+      "status": "valid",
+      "e": "Image",
+      "m": "image/png",
+      "p": [
+        {
+          "y": 69,
+          "x": 108,
+          "u": "https://preview.redd.it/4dsfw2558qvd1.png?width=108&amp;crop=smart&amp;auto=webp&amp;s=a6146f7c621e1496672eead23907ed0c3bbc299f"
+        },
+        {
+          "y": 139,
+          "x": 216,
+          "u": "https://preview.redd.it/4dsfw2558qvd1.png?width=216&amp;crop=smart&amp;auto=webp&amp;s=b3ba040d36f8d87ba52b0fb63d5c4b4f3342b15c"
+        },
+        {
+          "y": 206,
+          "x": 320,
+          "u": "https://preview.redd.it/4dsfw2558qvd1.png?width=320&amp;crop=smart&amp;auto=webp&amp;s=b7b578327f4a852b02b8e14801d506e408af6a8e"
+        },
+        {
+          "y": 412,
+          "x": 640,
+          "u": "https://preview.redd.it/4dsfw2558qvd1.png?width=640&amp;crop=smart&amp;auto=webp&amp;s=14d797c6a06c3d85e50bcf4f1897c712b265837a"
+        },
+        {
+          "y": 618,
+          "x": 960,
+          "u": "https://preview.redd.it/4dsfw2558qvd1.png?width=960&amp;crop=smart&amp;auto=webp&amp;s=d084daa2ff0d917304dfd74aeb6b226065efd0c4"
+        },
+        {
+          "y": 695,
+          "x": 1080,
+          "u": "https://preview.redd.it/4dsfw2558qvd1.png?width=1080&amp;crop=smart&amp;auto=webp&amp;s=f12f24b1ec584b8784862cce85fd1dd304eea762"
+        }
+      ],
+      "s": {
+        "y": 1058,
+        "x": 1643,
+        "u": "https://preview.redd.it/4dsfw2558qvd1.png?width=1643&amp;format=png&amp;auto=webp&amp;s=197eb8f07b3adc0d526537061b3f96eb3a9169fd"
+      },
+      "id": "4dsfw2558qvd1"
+    },
+    "qw7lalru7qvd1": {
+      "status": "valid",
+      "e": "Image",
+      "m": "image/png",
+      "p": [
+        {
+          "y": 55,
+          "x": 108,
+          "u": "https://preview.redd.it/qw7lalru7qvd1.png?width=108&amp;crop=smart&amp;auto=webp&amp;s=1e28d21ba6def90f2b376d8e28416957e399e5a8"
+        },
+        {
+          "y": 110,
+          "x": 216,
+          "u": "https://preview.redd.it/qw7lalru7qvd1.png?width=216&amp;crop=smart&amp;auto=webp&amp;s=07abd6e47385e3efd0d922174882a3716ff30f63"
+        },
+        {
+          "y": 163,
+          "x": 320,
+          "u": "https://preview.redd.it/qw7lalru7qvd1.png?width=320&amp;crop=smart&amp;auto=webp&amp;s=6dd4841389edb86dc2ce63b74cc1af5dc87112f0"
+        },
+        {
+          "y": 327,
+          "x": 640,
+          "u": "https://preview.redd.it/qw7lalru7qvd1.png?width=640&amp;crop=smart&amp;auto=webp&amp;s=7284b06bca1dc3c72dd4f1a8a6d097844fad23bd"
+        },
+        {
+          "y": 491,
+          "x": 960,
+          "u": "https://preview.redd.it/qw7lalru7qvd1.png?width=960&amp;crop=smart&amp;auto=webp&amp;s=4ff73feecdea7f85d63e70a1aa216894aa5aded9"
+        },
+        {
+          "y": 553,
+          "x": 1080,
+          "u": "https://preview.redd.it/qw7lalru7qvd1.png?width=1080&amp;crop=smart&amp;auto=webp&amp;s=9ea24f0d66d0339096863726426206ec8e9d4bdb"
+        }
+      ],
+      "s": {
+        "y": 815,
+        "x": 1591,
+        "u": "https://preview.redd.it/qw7lalru7qvd1.png?width=1591&amp;format=png&amp;auto=webp&amp;s=9356b2d3bcabb5024b242cee1fe9198737d54fbd"
+      },
+      "id": "qw7lalru7qvd1"
+    },
+    "79zw3fke8qvd1": {
+      "status": "valid",
+      "e": "Image",
+      "m": "image/png",
+      "p": [
+        {
+          "y": 68,
+          "x": 108,
+          "u": "https://preview.redd.it/79zw3fke8qvd1.png?width=108&amp;crop=smart&amp;auto=webp&amp;s=702ec1dcc32b40b41a9d13a6e32e5739ee35db44"
+        },
+        {
+          "y": 136,
+          "x": 216,
+          "u": "https://preview.redd.it/79zw3fke8qvd1.png?width=216&amp;crop=smart&amp;auto=webp&amp;s=b6de0861c467eb16c47fc6b683fd5ad8ba96010d"
+        },
+        {
+          "y": 202,
+          "x": 320,
+          "u": "https://preview.redd.it/79zw3fke8qvd1.png?width=320&amp;crop=smart&amp;auto=webp&amp;s=6c98c184cb0be327efda1943adbe52acb628cf7f"
+        },
+        {
+          "y": 404,
+          "x": 640,
+          "u": "https://preview.redd.it/79zw3fke8qvd1.png?width=640&amp;crop=smart&amp;auto=webp&amp;s=d032283ee07f3a72b7eb4a05ebde3af439c0f451"
+        },
+        {
+          "y": 607,
+          "x": 960,
+          "u": "https://preview.redd.it/79zw3fke8qvd1.png?width=960&amp;crop=smart&amp;auto=webp&amp;s=5cb6a99c1b13ae75208e5ee491c070901db29c41"
+        },
+        {
+          "y": 683,
+          "x": 1080,
+          "u": "https://preview.redd.it/79zw3fke8qvd1.png?width=1080&amp;crop=smart&amp;auto=webp&amp;s=0cb2f43f0cdffb0aa7ff366fd70a4c4ce5cfda75"
+        }
+      ],
+      "s": {
+        "y": 1071,
+        "x": 1693,
+        "u": "https://preview.redd.it/79zw3fke8qvd1.png?width=1693&amp;format=png&amp;auto=webp&amp;s=9ea4c309110ebbf9f7ad3bf3128901d391331511"
+      },
+      "id": "79zw3fke8qvd1"
+    },
+    "asc9ewjt8qvd1": {
+      "status": "valid",
+      "e": "Image",
+      "m": "image/png",
+      "p": [
+        {
+          "y": 70,
+          "x": 108,
+          "u": "https://preview.redd.it/asc9ewjt8qvd1.png?width=108&amp;crop=smart&amp;auto=webp&amp;s=42bb7b552e72970a7b69ebf3affafa20ac6e42c6"
+        },
+        {
+          "y": 140,
+          "x": 216,
+          "u": "https://preview.redd.it/asc9ewjt8qvd1.png?width=216&amp;crop=smart&amp;auto=webp&amp;s=33543b68343abc4b4084a81f0f740c5be9743839"
+        },
+        {
+          "y": 208,
+          "x": 320,
+          "u": "https://preview.redd.it/asc9ewjt8qvd1.png?width=320&amp;crop=smart&amp;auto=webp&amp;s=2d68011c53dc7713cf34722c1aea9a16076e5106"
+        },
+        {
+          "y": 416,
+          "x": 640,
+          "u": "https://preview.redd.it/asc9ewjt8qvd1.png?width=640&amp;crop=smart&amp;auto=webp&amp;s=2954685d137b6c74d6b6250ebe512442e5f54225"
+        },
+        {
+          "y": 624,
+          "x": 960,
+          "u": "https://preview.redd.it/asc9ewjt8qvd1.png?width=960&amp;crop=smart&amp;auto=webp&amp;s=95a651a930178acde8efbe17218be428a29cdf5c"
+        },
+        {
+          "y": 702,
+          "x": 1080,
+          "u": "https://preview.redd.it/asc9ewjt8qvd1.png?width=1080&amp;crop=smart&amp;auto=webp&amp;s=5c825a70b3a6d98dc7d34e5ba4b9c948d76bb1b9"
+        }
+      ],
+      "s": {
+        "y": 1070,
+        "x": 1645,
+        "u": "https://preview.redd.it/asc9ewjt8qvd1.png?width=1645&amp;format=png&amp;auto=webp&amp;s=a657ec6580b3ab582099e3b8b4f7dfebe8906423"
+      },
+      "id": "asc9ewjt8qvd1"
+    }
+  },
+  "name": "t3_1g7b85q",
+  "quarantine": false,
+  "link_flair_text_color": "dark",
+  "upvote_ratio": 0.95,
+  "author_flair_background_color": null,
+  "subreddit_type": "public",
+  "ups": 46,
+  "total_awards_received": 0,
+  "media_embed": {},
+  "author_flair_template_id": null,
+  "is_original_content": false,
+  "user_reports": [],
+  "secure_media": null,
+  "is_reddit_media_domain": false,
+  "is_meta": false,
+  "category": null,
+  "secure_media_embed": {},
+  "link_flair_text": null,
+  "can_mod_post": false,
+  "score": 46,
+  "approved_by": null,
+  "is_created_from_ads_ui": false,
+  "author_premium": false,
+  "thumbnail": "",
+  "edited": false,
+  "author_flair_css_class": null,
+  "author_flair_richtext": [],
+  "gildings": {},
+  "content_categories": null,
+  "is_self": true,
+  "mod_note": null,
+  "created": 1729351303.0,
+  "link_flair_type": "text",
+  "wls": 6,
+  "removed_by_category": null,
+  "banned_by": null,
+  "author_flair_type": "text",
+  "domain": "self.UKInvesting",
+  "allow_live_comments": false,
+  "selftext_html": "&lt;!-- SC_OFF --&gt;&lt;div class=\"md\"&gt;&lt;p&gt;TLDR: Acquisitions destroy value, however it really depends on the acquisition type done and the location of the company.&lt;/p&gt;\n\n&lt;p&gt;I&amp;#39;ve read a lot about how acquisitions destroy value and recently got access to S&amp;amp;PCapitalIQPro so I wanted to test out if this was true and what types of acquisitions destroyed the most value.&lt;/p&gt;\n\n&lt;p&gt;Here are the results for you:&lt;/p&gt;\n\n&lt;p&gt;Open source code I used to generate these results (Too complex a task for excel):&lt;br/&gt;\n&lt;a href=\"https://github.com/MartinDawson/stock-research-analyzer\"&gt;https://github.com/MartinDawson/stock-research-analyzer&lt;/a&gt;&lt;/p&gt;\n\n&lt;p&gt;Website is here: &lt;a href=\"https://martindawson.github.io/stock-research-analyzer/\"&gt;https://martindawson.github.io/stock-research-analyzer/&lt;/a&gt;&lt;/p&gt;\n\n&lt;p&gt;US companies that do acquisitions (abnormal returns compared to the SPX index at the same time frame):&lt;/p&gt;\n\n&lt;p&gt;&lt;a href=\"https://preview.redd.it/t036v8yj7qvd1.png?width=1697&amp;amp;format=png&amp;amp;auto=webp&amp;amp;s=0891bb062d729baa06b6f4c72e5a13a6d2f77e56\"&gt;https://preview.redd.it/t036v8yj7qvd1.png?width=1697&amp;amp;format=png&amp;amp;auto=webp&amp;amp;s=0891bb062d729baa06b6f4c72e5a13a6d2f77e56&lt;/a&gt;&lt;/p&gt;\n\n&lt;p&gt;Sample size of 43k.&lt;/p&gt;\n\n&lt;ul&gt;\n&lt;li&gt;US companies destroyed value overall after they announced the acquisition. Their stock prices dropped by -8.18% by month 20 and then started rebounding but by month 29 they were still down by -5.07%.&lt;/li&gt;\n&lt;/ul&gt;\n\n&lt;p&gt;Possible causes of the rebound could be that management have impaired and written off goodwill related to the acquisition by this point and realised they have overpaid or most of the acquisition related distractions on business performance has passed at this point.&lt;/p&gt;\n\n&lt;p&gt;This confirms what Aswath Damodaran has been teaching about in his videos &amp;amp; papers about acquisitions.&lt;/p&gt;\n\n&lt;p&gt;UK companies that do acquisitions (abnormal returns compared to the FTSE All-Share Index at the same time frame):&lt;/p&gt;\n\n&lt;p&gt;&lt;a href=\"https://preview.redd.it/qw7lalru7qvd1.png?width=1591&amp;amp;format=png&amp;amp;auto=webp&amp;amp;s=9356b2d3bcabb5024b242cee1fe9198737d54fbd\"&gt;https://preview.redd.it/qw7lalru7qvd1.png?width=1591&amp;amp;format=png&amp;amp;auto=webp&amp;amp;s=9356b2d3bcabb5024b242cee1fe9198737d54fbd&lt;/a&gt;&lt;/p&gt;\n\n&lt;ul&gt;\n&lt;li&gt;UK companies actually created value overall. Modest in the first 20 months, beating the FTSE All Share Index by 3% but by month 29 the gain over the index from these companies was 10.2%. If you toggle the &amp;#39;absolute returns&amp;#39; radio button on the website, you will see the returns of the acquiring companies without being relative to their respective indexes. You can see that the US companies destroy value both relatively and absolutely with acquisitions while UK companies create it. I have no idea why this gap exists between the UK and US acquiring companies but it does.&lt;/li&gt;\n&lt;/ul&gt;\n\n&lt;p&gt;I have double &amp;amp; triple checked the source data and cleaned the data and it all looks fine, this was a surprising result to me to see UK acquiring companies do so well relative to the FTSE All share index.&lt;/p&gt;\n\n&lt;p&gt;Note: The UK has a lower total sample size of 10k~ companies, whereas the US has 40k~ companies, however 10k should still be more than enough.&lt;/p&gt;\n\n&lt;p&gt;US companies by type of acquisition:&lt;/p&gt;\n\n&lt;p&gt;&lt;a href=\"https://preview.redd.it/4dsfw2558qvd1.png?width=1643&amp;amp;format=png&amp;amp;auto=webp&amp;amp;s=197eb8f07b3adc0d526537061b3f96eb3a9169fd\"&gt;https://preview.redd.it/4dsfw2558qvd1.png?width=1643&amp;amp;format=png&amp;amp;auto=webp&amp;amp;s=197eb8f07b3adc0d526537061b3f96eb3a9169fd&lt;/a&gt;&lt;/p&gt;\n\n&lt;p&gt;UK companies by type of acquisition:&lt;/p&gt;\n\n&lt;p&gt;&lt;a href=\"https://preview.redd.it/79zw3fke8qvd1.png?width=1693&amp;amp;format=png&amp;amp;auto=webp&amp;amp;s=9ea4c309110ebbf9f7ad3bf3128901d391331511\"&gt;https://preview.redd.it/79zw3fke8qvd1.png?width=1693&amp;amp;format=png&amp;amp;auto=webp&amp;amp;s=9ea4c309110ebbf9f7ad3bf3128901d391331511&lt;/a&gt;&lt;/p&gt;\n\n&lt;p&gt;I won&amp;#39;t go through all of these, you can see the output chart for yourself, however I will comment on the main patterns.&lt;/p&gt;\n\n&lt;p&gt;In both the US and UK their was a very similar pattern.&lt;/p&gt;\n\n&lt;ul&gt;\n&lt;li&gt;Bankruptcy acquisitions were by far the most profitable, resulting in an average abnormal cumulative return since acquisition of 52.77% over 29 months. This makes sense because when companies go bankrupt they do firesales on their assets which means the acquirers can buy them for cheap, including the entire business. The sample size was only 112 companies though so take this with more of a grain of salt.&lt;/li&gt;\n&lt;li&gt;LBO was the second most profitable acquisition type for both US and UK which was very surprising to see. It seems that loading up on debt and acquiring a company seems to produce good returns above the SPX &amp;amp; ASX indexes. Maybe this is because the acquiring company quickly sells down the debt and steamlines the business after by selling non-core assets? I&amp;#39;m not sure but the sample size of 2669 is large and so this is quite clear&lt;/li&gt;\n&lt;li&gt;Management Participated acquisitions seem to do decent as well, giving 8.22% abnormal returns for US and 32% for UK. This might be explained by management putting their own money in as part of the deal so they are more incentivized or confident that the acquisition is correct. Note the small sample size for US companies of 120 and UK of 149 though.&lt;/li&gt;\n&lt;li&gt;Larger cap acquirers seem to perform significantly better than smaller cap acquirers.&lt;/li&gt;\n&lt;li&gt;Companies that do multiple acquisitions still destroy value, but they destroy much less value than companies that do a single acquisition. You can see companies that did a single acquisition had a -60% return for the US and -15% for the UK. This had a large sample size of 3355 as well.&lt;/li&gt;\n&lt;/ul&gt;\n\n&lt;p&gt;Maybe single acquirers are less experienced on what to look for or more likely to overpay?&lt;/p&gt;\n\n&lt;ul&gt;\n&lt;li&gt;Cash deals give significantly higher returns than stock deals do. US companies cash deals gave 5.55% whereas the stock deals gave -45.29% since the acquisition announcements. A massive difference. This might be explained by acquiring companies being more likely to issue stock for acquisitions if they think their company is overvalued. An overvalued acquirer is going to drop more than a non-overvalued one in the long term. The sample size for cash deals was 16561 and for stock it was 3859 for the US, both very large sample sizes.&lt;/li&gt;\n&lt;li&gt;Companies that have acquired others from 2016 - Today have performed significantly worse for the US than they did from 2000-2007. Whereas the opposite happened for UK companies. I have no real explanation for why this could be.&lt;/li&gt;\n&lt;li&gt;Smaller acquisitions relative to the acquirers market cap destroyed less value than larger acquisitions. If you see the size of 2-10% they returned -8.5% for US companies whereas 50-100% returned -15%. The sample sizes for these are large as well.&lt;/li&gt;\n&lt;li&gt;Minority acquisitions did not do any better than majority acquisitions which is also surprising. Note the sample size of 3k whereas majority had a 40k sample size.&lt;/li&gt;\n&lt;li&gt;Withdrawn &amp;amp; terminated acquisitions surprisingly destroy an insane amount of value still as well. This might be because of the costs and distraction that happens when pursuing the acquisition.&lt;/li&gt;\n&lt;li&gt;Reverse mergers and backdoor ipos seem to be insanely value destructive for US and UK companies and should never be done in any circumstance.&lt;/li&gt;\n&lt;/ul&gt;\n\n&lt;p&gt;I&amp;#39;ve also plotted the worst/best drawdowns and peaks for every type of combination (that had a sample size of &amp;gt; 500). For example for the US companies, you can see the worst combination possible of acquisition type here:&lt;/p&gt;\n\n&lt;p&gt;&lt;a href=\"https://preview.redd.it/asc9ewjt8qvd1.png?width=1645&amp;amp;format=png&amp;amp;auto=webp&amp;amp;s=a657ec6580b3ab582099e3b8b4f7dfebe8906423\"&gt;https://preview.redd.it/asc9ewjt8qvd1.png?width=1645&amp;amp;format=png&amp;amp;auto=webp&amp;amp;s=a657ec6580b3ab582099e3b8b4f7dfebe8906423&lt;/a&gt;&lt;/p&gt;\n\n&lt;p&gt;Was this one:&lt;/p&gt;\n\n&lt;pre&gt;&lt;code&gt;```json\n{&amp;quot;dateRange&amp;quot;:&amp;quot;2016-today&amp;quot;,&amp;quot;sizeByTransactionValue&amp;quot;:&amp;quot;all&amp;quot;,&amp;quot;publicOrPrivate&amp;quot;:&amp;quot;private&amp;quot;,&amp;quot;acquisitionsNumber&amp;quot;:&amp;quot;all&amp;quot;,&amp;quot;acquirerMarketCap&amp;quot;:&amp;quot;all&amp;quot;,&amp;quot;status&amp;quot;:&amp;quot;completed&amp;quot;,&amp;quot;dealType&amp;quot;:&amp;quot;stockDeal&amp;quot;,&amp;quot;acquisitionType&amp;quot;:&amp;quot;majority&amp;quot;} (Count: 598)\n```\n&lt;/code&gt;&lt;/pre&gt;\n\n&lt;p&gt;This combination resulted in a massive destruction of capital, worse than all other combinations basically.&lt;/p&gt;\n\n&lt;p&gt;You can have a look at the other tabs yourself and see which ones are the best and worst performing combinations.&lt;/p&gt;\n\n&lt;p&gt;Note: The reason the returns go below -100% is because these are since the acquisition was announced. So if the stock price went up in the months preceding the acquisition announcement then it&amp;#39;s possible to get a value &amp;gt; -100%.&lt;/p&gt;\n\n&lt;p&gt;If you want to see which specific combination your companies acquisition will return, you can check out the `outputRaw/acquisitions/${region}.json` file to see the entire dump of all combinations and find the same combination that matches your company.&lt;/p&gt;\n\n&lt;p&gt;Note: If their is a small `count` number then that&amp;#39;s because the sample size is very small for that combination and shouldn&amp;#39;t be relied upon.&lt;/p&gt;\n\n&lt;p&gt;In the above charts I threw away combinations that had &amp;lt; 500 sample size so that we could get relevant results.&lt;/p&gt;\n\n&lt;h1&gt;Data validation&lt;/h1&gt;\n\n&lt;p&gt;The most important thing in analysis is clean data or the results are useless. I&amp;#39;ve taken great care in cleaning the data and validating it by doing the following:&lt;/p&gt;\n\n&lt;ul&gt;\n&lt;li&gt;Using S&amp;amp;PCapitalIQPro which doesn&amp;#39;t have survivorship bias in the results &amp;amp; has high quality data.&lt;/li&gt;\n&lt;li&gt;Ran the `cleanData.js` functions before processing which does the following for share price &amp;amp; index data:&lt;/li&gt;\n&lt;/ul&gt;\n\n&lt;ol&gt;\n&lt;li&gt;Converts `&amp;#39;&amp;#39;` &amp;amp; `0` to `null` values in.&lt;/li&gt;\n&lt;li&gt;Checks if any percentageChange between 2 numbers is `&amp;gt; 1000%` &amp;amp; `&amp;lt; 100%`, if it is it sets the entire row to be null values as this is most likely bad data rather than a real Month-On-Month change of share prices.&lt;/li&gt;\n&lt;li&gt;Filters out companies that have &amp;lt;$10m in marketCap size (`minMarketCapForAnalyzingInM` in the args). This is needed to stop nano-caps which have ridicilous % changes sometimes Month-On-Month. These don&amp;#39;t really reflect true shareholder value either, just liquidity issues &amp;amp; pumps/dumps a lot of times.&lt;/li&gt;\n&lt;li&gt;A bunch of tests in `acquisitionFilters.test.js` &amp;amp; `calculate.test.js`. You can verify them with `npm run test`.&lt;/li&gt;\n&lt;/ol&gt;\n\n&lt;p&gt;I also tested using `math.js` to remove any chance of [`numerical instability`](&lt;a href=\"https://en.wikipedia.org/wiki/Numerical%5C_stability\"&gt;https://en.wikipedia.org/wiki/Numerical\\_stability&lt;/a&gt;) when calculating cumulative Month-On-Month changes in share prices, however the slowdown in processing speed wasn&amp;#39;t worth the tiny bit extra in precision. The small floating point errors don&amp;#39;t effect the results either so it was redundant.&lt;/p&gt;\n\n&lt;p&gt;Feel free to run the code yourself or double check my calculations as it&amp;#39;s all open source here: &lt;a href=\"https://github.com/MartinDawson/stock-research-analyzer\"&gt;https://github.com/MartinDawson/stock-research-analyzer&lt;/a&gt;&lt;/p&gt;\n\n&lt;p&gt;Website is here: &lt;a href=\"https://martindawson.github.io/stock-research-analyzer/\"&gt;https://martindawson.github.io/stock-research-analyzer/&lt;/a&gt;&lt;/p&gt;\n\n&lt;p&gt;I will be doing more of these analysis on companies, the next one will be on management compensation and how that is tied to shareholder value/destruction. You can follow the above open source github repo if you are interested.&lt;/p&gt;\n&lt;/div&gt;&lt;!-- SC_ON --&gt;",
+  "likes": null,
+  "suggested_sort": null,
+  "banned_at_utc": null,
+  "view_count": null,
+  "archived": true,
+  "no_follow": false,
+  "is_crosspostable": false,
+  "pinned": false,
+  "over_18": false,
+  "all_awardings": [],
+  "awarders": [],
+  "media_only": false,
+  "can_gild": false,
+  "spoiler": false,
+  "locked": false,
+  "author_flair_text": null,
+  "treatment_tags": [],
+  "visited": false,
+  "removed_by": null,
+  "num_reports": null,
+  "distinguished": null,
+  "subreddit_id": "t5_2x42i",
+  "author_is_blocked": false,
+  "mod_reason_by": null,
+  "removal_reason": null,
+  "link_flair_background_color": "",
+  "id": "1g7b85q",
+  "is_robot_indexable": true,
+  "report_reasons": null,
+  "author": "krisolch",
+  "discussion_type": null,
+  "num_comments": 9,
+  "send_replies": true,
+  "contest_mode": false,
+  "mod_reports": [],
+  "author_patreon_flair": false,
+  "author_flair_text_color": null,
+  "permalink": "/r/UKInvesting/comments/1g7b85q/a_detailed_analysis_on_what_types_of_acquisitions/",
+  "stickied": false,
+  "url": "https://www.reddit.com/r/UKInvesting/comments/1g7b85q/a_detailed_analysis_on_what_types_of_acquisitions/",
+  "subreddit_subscribers": 235054,
+  "created_utc": 1729351303.0,
+  "num_crossposts": 0,
+  "media": null,
+  "is_video": false
+}
