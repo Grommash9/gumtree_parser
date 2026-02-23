@@ -18,7 +18,7 @@ CLIENT_SECRET = "bwTnFcHekESh01FoAGBZoXqJVhNaSg"
 USER_AGENT = "funnelboost-scraper/1.0"
 
 SUBREDDITS = [
-    "SharedOwnershipUK",
+    # "SharedOwnershipUK",
     "relationship_advice",
     "relationships",
     "relationships_advice",
@@ -212,3 +212,6 @@ class RedditScraper:
 if __name__ == "__main__":
     scraper = RedditScraper()
     scraper.run()
+
+
+# /Users/oprudnikov/personal_repos/gumtree_parser/env/bin/python3 /Users/oprudnikov/personal_repos/gumtree_parser/reddit_scraper.py
