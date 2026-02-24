@@ -20,6 +20,10 @@ USER_AGENT = "funnelboost-scraper/1.0"
 SUBREDDITS = [
     # "SharedOwnershipUK",
     "relationship_advice",
+    "AskWomen",
+    "DeadBedrooms",
+    "AskWomenOver30",
+    "Marriage",
     "relationships",
     "relationships_advice",
     "sex",
