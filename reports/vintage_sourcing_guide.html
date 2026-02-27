@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UK Vintage Sourcing Guide - Team Reference</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --dark: #1a252f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f6fa;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--dark));
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 10px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+
+        .stat-card .label {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        section {
+            background: white;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        section h2 {
+            background: var(--primary);
+            color: white;
+            padding: 20px 25px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        section h2 .badge {
+            background: var(--secondary);
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: normal;
+        }
+
+        .section-content {
+            padding: 25px;
+        }
+
+        .source-type {
+            margin-bottom: 30px;
+            border-left: 4px solid var(--secondary);
+            padding-left: 20px;
+        }
+
+        .source-type h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .source-type h3 .count {
+            color: var(--secondary);
+            font-weight: normal;
+        }
+
+        .source-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .source-item {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .source-item .name {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .source-item .mentions {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .source-item .location {
+            font-size: 0.8rem;
+            color: var(--secondary);
+            margin-top: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th {
+            background: var(--light);
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--primary);
+            border-bottom: 2px solid #ddd;
+        }
+
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .price-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .price-cheap { background: #d4edda; color: #155724; }
+        .price-varied { background: #fff3cd; color: #856404; }
+        .price-moderate { background: #cce5ff; color: #004085; }
+        .price-expensive { background: #f8d7da; color: #721c24; }
+
+        .quote-box {
+            background: #f8f9fa;
+            border-left: 4px solid var(--secondary);
+            padding: 15px 20px;
+            margin: 10px 0;
+            font-style: italic;
+            color: #555;
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #fff9e6, #fff3cd);
+            border: 1px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .tip-box h4 {
+            color: #856404;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .columns-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #e8f4fd, #d1ecf1);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .bar-chart {
+            margin: 20px 0;
+        }
+
+        .bar-item {
+            margin: 10px 0;
+        }
+
+        .bar-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .bar {
+            background: var(--light);
+            border-radius: 10px;
+            overflow: hidden;
+            height: 25px;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .bar-charity { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+        .bar-carboot { background: linear-gradient(90deg, #3498db, #5dade2); }
+        .bar-auction { background: linear-gradient(90deg, #9b59b6, #a569bd); }
+        .bar-clearance { background: linear-gradient(90deg, #e67e22, #f39c12); }
+        .bar-antique { background: linear-gradient(90deg, #1abc9c, #48c9b0); }
+        .bar-flea { background: linear-gradient(90deg, #e74c3c, #ec7063); }
+        .bar-jumble { background: linear-gradient(90deg, #34495e, #5d6d7e); }
+        .bar-fair { background: linear-gradient(90deg, #f39c12, #f4d03f); }
+
+        .named-sources {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+        }
+
+        .named-source {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .named-source .name {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .named-source .count {
+            font-size: 1.5rem;
+            color: var(--secondary);
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media print {
+            body { background: white; }
+            section { box-shadow: none; border: 1px solid #ddd; }
+            .stat-card { box-shadow: none; border: 1px solid #ddd; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏺 UK Vintage Sourcing Guide</h1>
+            <p>Comprehensive analysis of 2,728 sourcing mentions from UK Reddit communities</p>
+            <p style="margin-top: 10px; font-size: 0.9rem; opacity: 0.8;">Generated: February 2026 | Data from 10,678 analyzed posts</p>
+        </header>
+
+        <!-- Key Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="number">2,728</div>
+                <div class="label">Source Mentions</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">1,159</div>
+                <div class="label">Relevant Posts</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">8</div>
+                <div class="label">Source Categories</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">60%</div>
+                <div class="label">Charity Shop Mentions</div>
+            </div>
+        </div>
+
+        <!-- Source Type Overview -->
+        <section>
+            <h2>📊 Source Types Overview</h2>
+            <div class="section-content">
+                <div class="bar-chart">
+                    <div class="bar-item">
+                        <div class="bar-label">
+                            <span><strong>Charity Shops</strong></span>
+                            <span>1,629 mentions (60%)</span>
+                        </div>
+                        <div class="bar">
+                            <div class="bar-fill bar-charity" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">
+                            <span><strong>Car Boot Sales</strong></span>
+                            <span>500 mentions (18%)</span>
+                        </div>
+                        <div class="bar">
+                            <div class="bar-fill bar-carboot" style="width: 30.7%"></div>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">
+                            <span><strong>Auction Houses</strong></span>
+                            <span>166 mentions (6%)</span>
+                        </div>
+                        <div class="bar">
+                            <div class="bar-fill bar-auction" style="width: 10.2%"></div>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">
+                            <span><strong>House Clearances</strong></span>
+                            <span>133 mentions (5%)</span>
+                        </div>
+                        <div class="bar">
+                            <div class="bar-fill bar-clearance" style="width: 8.2%"></div>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">
+                            <span><strong>Antique Centres</strong></span>
+                            <span>114 mentions (4%)</span>
+                        </div>
+                        <div class="bar">
+                            <div class="bar-fill bar-antique" style="width: 7%"></div>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">
+                            <span><strong>Flea Markets</strong></span>
+                            <span>81 mentions (3%)</span>
+                        </div>
+                        <div class="bar">
+                            <div class="bar-fill bar-flea" style="width: 5%"></div>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">
+                            <span><strong>Jumble Sales</strong></span>
+                            <span>56 mentions (2%)</span>
+                        </div>
+                        <div class="bar">
+                            <div class="bar-fill bar-jumble" style="width: 3.4%"></div>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">
+                            <span><strong>Antique Fairs</strong></span>
+                            <span>23 mentions (1%)</span>
+                        </div>
+                        <div class="bar">
+                            <div class="bar-fill bar-fair" style="width: 1.4%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CHARITY SHOPS -->
+        <section>
+            <h2>🏪 Charity Shops <span class="badge">1,629 mentions - TOP SOURCE</span></h2>
+            <div class="section-content">
+                <div class="highlight">
+                    <strong>Key Finding:</strong> Charity shops are by far the most mentioned sourcing location, accounting for 60% of all mentions.
+                    They offer affordable pricing and are accessible throughout the UK.
+                </div>
+
+                <h3 style="margin: 20px 0 15px; color: var(--primary);">Top Named Charity Shops</h3>
+                <div class="named-sources">
+                    <div class="named-source">
+                        <div class="count">126</div>
+                        <div class="name">British Heart Foundation (BHF)</div>
+                    </div>
+                    <div class="named-source">
+                        <div class="count">51</div>
+                        <div class="name">Oxfam</div>
+                    </div>
+                    <div class="named-source">
+                        <div class="count">30</div>
+                        <div class="name">Emmaus</div>
+                    </div>
+                    <div class="named-source">
+                        <div class="count">18</div>
+                        <div class="name">Sue Ryder</div>
+                    </div>
+                    <div class="named-source">
+                        <div class="count">13</div>
+                        <div class="name">Barnardos</div>
+                    </div>
+                    <div class="named-source">
+                        <div class="count">12</div>
+                        <div class="name">Cancer Research UK</div>
+                    </div>
+                    <div class="named-source">
+                        <div class="count">7</div>
+                        <div class="name">Scope</div>
+                    </div>
+                    <div class="named-source">
+                        <div class="count">7</div>
+                        <div class="name">Salvation Army</div>
+                    </div>
+                    <div class="named-source">
+                        <div class="count">6</div>
+                        <div class="name">Age UK</div>
+                    </div>
+                    <div class="named-source">
+                        <div class="count">6</div>
+                        <div class="name">Red Cross</div>
+                    </div>
+                    <div class="named-source">
+                        <div class="count">5</div>
+                        <div class="name">YMCA</div>
+                    </div>
+                    <div class="named-source">
+                        <div class="count">3</div>
+                        <div class="name">Shelter</div>
+                    </div>
+                </div>
+
+                <div class="tip-box">
+                    <h4>💡 Sourcing Tips</h4>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>BHF Furniture Stores</strong> - Dedicated furniture stores that can take large items</li>
+                        <li><strong>Oxfam</strong> - Often has dedicated book + music shops; slightly higher prices but quality stock</li>
+                        <li><strong>Emmaus</strong> - Community-based, known for furniture and homeware</li>
+                        <li><strong>Check high streets with multiple charity shops</strong> - e.g., "Caterham High St has 6 charity shops"</li>
+                        <li><strong>Oxfam receives Zara donations</strong> - Unsold stock donated to select shops</li>
+                    </ul>
+                </div>
+
+                <h3 style="margin: 25px 0 15px; color: var(--primary);">Real Quotes from Sourcing Community</h3>
+                <div class="quote-box">"I can't begin to imagine how much I've saved by using charity shops."</div>
+                <div class="quote-box">"Places to get cheap used white goods include British Heart Foundation shops"</div>
+                <div class="quote-box">"Oxfam is always my go to. Got some really lovely clothes from there."</div>
+                <div class="quote-box">"buying second hand shoes from charity shops has been a game changer"</div>
+                <div class="quote-box">"Check your local charity shops often for pots, pans, dishes and drink ware."</div>
+            </div>
+        </section>
+
+        <!-- CAR BOOT SALES -->
+        <section>
+            <h2>🚗 Car Boot Sales <span class="badge">500 mentions</span></h2>
+            <div class="section-content">
+                <div class="highlight">
+                    <strong>Key Finding:</strong> Car boot sales are the second most popular sourcing method, known for cheap prices and treasure-hunting opportunities.
+                    Most run on weekends, particularly Sundays.
+                </div>
+
+                <div class="columns-2">
+                    <div>
+                        <h3 style="margin-bottom: 15px; color: var(--primary);">Named Car Boots</h3>
+                        <table>
+                            <tr><th>Name</th><th>Location</th></tr>
+                            <tr><td>Polmadie Carboot</td><td>Jessie Street, Glasgow (Sun & Wed)</td></tr>
+                            <tr><td>Newark Show Ground</td><td>Newark, Lincolnshire</td></tr>
+                            <tr><td>Rufforth Autojumble</td><td>Rufforth, UK</td></tr>
+                            <tr><td>Croft Car Boot</td><td>Leicestershire</td></tr>
+                            <tr><td>Hengoed</td><td>Hengoed, Wales</td></tr>
+                            <tr><td>Rhyl Carboot</td><td>Rhyl, UK</td></tr>
+                            <tr><td>Ardleigh</td><td>Essex</td></tr>
+                            <tr><td>Nutts Corner</td><td>Northern Ireland</td></tr>
+                        </table>
+                    </div>
+                    <div>
+                        <h3 style="margin-bottom: 15px; color: var(--primary);">What to Expect</h3>
+                        <ul style="margin-left: 20px; line-height: 2;">
+                            <li><strong>Pricing:</strong> Generally cheap, negotiable</li>
+                            <li><strong>Best for:</strong> Toys, games, collectibles, general vintage</li>
+                            <li><strong>Timing:</strong> Weekends, early morning for best finds</li>
+                            <li><strong>Season:</strong> Spring through Autumn primarily</li>
+                        </ul>
+
+                        <div class="tip-box" style="margin-top: 20px;">
+                            <h4>💡 Pro Tip</h4>
+                            <p>"We used to get all our toys from the carboot especially pokemon and yu gi oh cards"</p>
+                            <p style="margin-top: 10px;">"Managed to bag some rarer/valuable video games at a local Car Boot sale!"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AUCTION HOUSES -->
+        <section>
+            <h2>🔨 Auction Houses <span class="badge">166 mentions</span></h2>
+            <div class="section-content">
+                <div class="highlight">
+                    <strong>Key Finding:</strong> Auctions offer variable pricing - can find bargains but also competitive bidding.
+                    Both local salerooms and major houses mentioned.
+                </div>
+
+                <div class="columns-2">
+                    <div>
+                        <h3 style="margin-bottom: 15px; color: var(--primary);">Named Auction Houses</h3>
+                        <table>
+                            <tr><th>Name</th><th>Notes</th></tr>
+                            <tr><td><strong>John Pye Auctions</strong></td><td>6 mentions - Returns/liquidation specialist</td></tr>
+                            <tr><td><strong>Bonhams</strong></td><td>3 mentions - High-end/specialist</td></tr>
+                            <tr><td><strong>Christies</strong></td><td>Premium auction house</td></tr>
+                            <tr><td><strong>Criterion Auctions</strong></td><td>Islington, London</td></tr>
+                            <tr><td><strong>Clark and Simpson</strong></td><td>General auctions</td></tr>
+                            <tr><td><strong>Chelmsford Auction Rooms</strong></td><td>Essex</td></tr>
+                            <tr><td><strong>Charles Hanson</strong></td><td>TV personality auctioneer</td></tr>
+                        </table>
+                    </div>
+                    <div>
+                        <h3 style="margin-bottom: 15px; color: var(--primary);">Auction Tips</h3>
+                        <ul style="margin-left: 20px; line-height: 2;">
+                            <li><strong>Local auctions</strong> - 75 mentions of "local auction" - best value</li>
+                            <li><strong>the-saleroom.com</strong> - Online platform for UK auctions</li>
+                            <li><strong>House clearance auctions</strong> - Often bundled lots, great value</li>
+                            <li>Set maximum bids and stick to them</li>
+                            <li>Factor in buyer's premium (typically 20-25%)</li>
+                        </ul>
+
+                        <div class="quote-box" style="margin-top: 15px;">
+                            "Anyone in here has got good experiences with John Pye auctions??"
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- HOUSE CLEARANCES -->
+        <section>
+            <h2>🏠 House Clearances <span class="badge">133 mentions</span></h2>
+            <div class="section-content">
+                <div class="highlight">
+                    <strong>Key Finding:</strong> House clearances offer bulk buying opportunities. Can work with clearance companies
+                    or attend house clearance auctions for best deals.
+                </div>
+
+                <h3 style="margin-bottom: 15px; color: var(--primary);">Types of House Clearance Sourcing</h3>
+                <div class="source-list">
+                    <div class="source-item">
+                        <div class="name">House Clearance Companies</div>
+                        <div class="mentions">Buy direct from clearers</div>
+                        <div class="location">Contact local firms</div>
+                    </div>
+                    <div class="source-item">
+                        <div class="name">House Clearance Auctions</div>
+                        <div class="mentions">Attend dedicated auctions</div>
+                        <div class="location">Often bundled lots</div>
+                    </div>
+                    <div class="source-item">
+                        <div class="name">BHF House Clearance</div>
+                        <div class="mentions">British Heart Foundation service</div>
+                        <div class="location">Free collection for donations</div>
+                    </div>
+                    <div class="source-item">
+                        <div class="name">Estate Sales</div>
+                        <div class="mentions">Direct from estates</div>
+                        <div class="location">Less common in UK than US</div>
+                    </div>
+                </div>
+
+                <div class="tip-box" style="margin-top: 20px;">
+                    <h4>💡 Build Relationships</h4>
+                    <p>Many sourcers recommend building relationships with local house clearance companies.
+                    They often let regular buyers have first pick before items go to auction or charity shops.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ANTIQUE CENTRES & FAIRS -->
+        <section>
+            <h2>🏛️ Antique Centres & Fairs <span class="badge">137 combined mentions</span></h2>
+            <div class="section-content">
+                <div class="columns-2">
+                    <div>
+                        <h3 style="margin-bottom: 15px; color: var(--primary);">Major Antique Fairs</h3>
+                        <table>
+                            <tr><th>Event</th><th>Location</th><th>Notes</th></tr>
+                            <tr><td><strong>Newark</strong></td><td>Lincolnshire</td><td>One of UK's largest</td></tr>
+                            <tr><td><strong>Sunbury</strong></td><td>Outside London</td><td>Furniture specialist</td></tr>
+                            <tr><td><strong>Treasure House Fair</strong></td><td>London</td><td>"The pinnacle in London"</td></tr>
+                            <tr><td><strong>The Decorative Fair</strong></td><td>Battersea Park</td><td>Quality decorative items</td></tr>
+                            <tr><td><strong>Bloomsbury Book Fair</strong></td><td>London</td><td>Monthly - books specialist</td></tr>
+                        </table>
+                    </div>
+                    <div>
+                        <h3 style="margin-bottom: 15px; color: var(--primary);">Antique Centres & Shops</h3>
+                        <table>
+                            <tr><th>Name</th><th>Location</th></tr>
+                            <tr><td><strong>Hatton Garden</strong></td><td>London - Jewellery</td></tr>
+                            <tr><td><strong>Jewellery Quarter</strong></td><td>Birmingham</td></tr>
+                            <tr><td><strong>The Lanes</strong></td><td>Brighton</td></tr>
+                            <tr><td><strong>South Laines</strong></td><td>Brighton</td></tr>
+                            <tr><td><strong>Argyll Arcade</strong></td><td>Glasgow</td></tr>
+                            <tr><td><strong>Snoopers Paradise</strong></td><td>Brighton</td></tr>
+                            <tr><td><strong>Hemswell Antique Centres</strong></td><td>Lincolnshire</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="quote-box" style="margin-top: 20px;">
+                    "We took her to Newark last year for her birthday" - Newark is a destination event for serious collectors
+                </div>
+                <div class="quote-box">
+                    "Visiting antique fairs and haggling over stuff you don't need."
+                </div>
+            </div>
+        </section>
+
+        <!-- FLEA MARKETS -->
+        <section>
+            <h2>🛍️ Flea Markets <span class="badge">81 mentions</span></h2>
+            <div class="section-content">
+                <h3 style="margin-bottom: 15px; color: var(--primary);">Named Flea Markets</h3>
+                <div class="source-list">
+                    <div class="source-item">
+                        <div class="name">Camden Market</div>
+                        <div class="location">London</div>
+                        <div class="mentions">"should be exactly what you are after"</div>
+                    </div>
+                    <div class="source-item">
+                        <div class="name">Portobello Road</div>
+                        <div class="location">London</div>
+                        <div class="mentions">World-famous antiques market</div>
+                    </div>
+                    <div class="source-item">
+                        <div class="name">Greenwich Market</div>
+                        <div class="location">London</div>
+                        <div class="mentions">Arts, crafts & antiques</div>
+                    </div>
+                    <div class="source-item">
+                        <div class="name">Lewes Flea Market</div>
+                        <div class="location">Lewes, East Sussex</div>
+                        <div class="mentions">Regular market</div>
+                    </div>
+                    <div class="source-item">
+                        <div class="name">Bath Flea Market</div>
+                        <div class="location">Bath</div>
+                        <div class="mentions">Quality items</div>
+                    </div>
+                    <div class="source-item">
+                        <div class="name">Kirkstall Abbey Market</div>
+                        <div class="location">Leeds</div>
+                        <div class="mentions">Regular event</div>
+                    </div>
+                    <div class="source-item">
+                        <div class="name">Bovingdon Market</div>
+                        <div class="location">Bovingdon, Herts</div>
+                        <div class="mentions">Large outdoor market</div>
+                    </div>
+                    <div class="source-item">
+                        <div class="name">North Weald</div>
+                        <div class="location">Essex</div>
+                        <div class="mentions">Major market venue</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- JUMBLE SALES -->
+        <section>
+            <h2>🎪 Jumble Sales <span class="badge">56 mentions</span></h2>
+            <div class="section-content">
+                <div class="highlight">
+                    <strong>Key Finding:</strong> Jumble sales are community-based events, typically at church halls, village halls, and schools.
+                    Extremely cheap prices but requires local knowledge to find.
+                </div>
+
+                <h3 style="margin-bottom: 15px; color: var(--primary);">Types of Jumble Sales</h3>
+                <ul style="margin-left: 20px; line-height: 2;">
+                    <li><strong>Church Jumble Sales</strong> - Most common type</li>
+                    <li><strong>Village Hall Sales</strong> - Rural community events</li>
+                    <li><strong>School Fetes</strong> - Often have jumble/secondhand sections</li>
+                    <li><strong>Scout/Guide Jumble Sales</strong> - Fundraising events</li>
+                    <li><strong>NCT Nearly New Sales</strong> - Baby/children items specialist</li>
+                    <li><strong>Jumble Trail</strong> - Multi-location neighborhood events</li>
+                </ul>
+
+                <div class="tip-box" style="margin-top: 20px;">
+                    <h4>💡 Finding Jumble Sales</h4>
+                    <p>Check local Facebook groups, church notice boards, and community newsletters.
+                    Often advertised only locally with short notice.</p>
+                </div>
+
+                <div class="quote-box">
+                    "I've been to boot sales, flea markets, antique fairs, small village Christmas events, even school fetes"
+                </div>
+            </div>
+        </section>
+
+        <!-- PRICE QUALITY -->
+        <section>
+            <h2>💰 Price & Quality Analysis</h2>
+            <div class="section-content">
+                <div class="columns-2">
+                    <div>
+                        <h3 style="margin-bottom: 15px; color: var(--primary);">Price Distribution</h3>
+                        <table>
+                            <tr><th>Rating</th><th>Mentions</th><th>%</th></tr>
+                            <tr><td><span class="price-tag price-cheap">Cheap</span></td><td>1,277</td><td>47%</td></tr>
+                            <tr><td><span class="price-tag price-varied">Varied/Variable</span></td><td>727</td><td>27%</td></tr>
+                            <tr><td><span class="price-tag price-moderate">Affordable</span></td><td>345</td><td>13%</td></tr>
+                            <tr><td><span class="price-tag price-cheap">Free</span></td><td>39</td><td>1%</td></tr>
+                            <tr><td><span class="price-tag price-expensive">Expensive</span></td><td>23</td><td>1%</td></tr>
+                        </table>
+                    </div>
+                    <div>
+                        <h3 style="margin-bottom: 15px; color: var(--primary);">Price by Source Type</h3>
+                        <table>
+                            <tr><th>Source</th><th>Typical Price</th></tr>
+                            <tr><td>Jumble Sales</td><td><span class="price-tag price-cheap">Very Cheap</span></td></tr>
+                            <tr><td>Car Boot Sales</td><td><span class="price-tag price-cheap">Cheap</span></td></tr>
+                            <tr><td>Charity Shops</td><td><span class="price-tag price-cheap">Cheap to Affordable</span></td></tr>
+                            <tr><td>House Clearances</td><td><span class="price-tag price-varied">Variable</span></td></tr>
+                            <tr><td>Local Auctions</td><td><span class="price-tag price-varied">Variable</span></td></tr>
+                            <tr><td>Flea Markets</td><td><span class="price-tag price-moderate">Moderate</span></td></tr>
+                            <tr><td>Antique Fairs</td><td><span class="price-tag price-varied">Variable to High</span></td></tr>
+                            <tr><td>Antique Centres</td><td><span class="price-tag price-expensive">Higher</span></td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LOCATION HOTSPOTS -->
+        <section>
+            <h2>📍 Location Hotspots</h2>
+            <div class="section-content">
+                <p style="margin-bottom: 20px;">While 85% of mentions are "UK (general)", these specific locations were mentioned most frequently:</p>
+
+                <div class="named-sources">
+                    <div class="named-source">
+                        <div class="count">26</div>
+                        <div class="name">London</div>
+                    </div>
+                    <div class="named-source">
+                        <div class="count">12</div>
+                        <div class="name">Nottingham</div>
+                    </div>
+                    <div class="named-source">
+                        <div class="count">11</div>
+                        <div class="name">Birmingham</div>
+                    </div>
+                    <div class="named-source">
+                        <div class="count">7</div>
+                        <div class="name">Brighton</div>
+                    </div>
+                    <div class="named-source">
+                        <div class="count">6</div>
+                        <div class="name">Glasgow</div>
+                    </div>
+                    <div class="named-source">
+                        <div class="count">5</div>
+                        <div class="name">York</div>
+                    </div>
+                    <div class="named-source">
+                        <div class="count">5</div>
+                        <div class="name">Surrey</div>
+                    </div>
+                    <div class="named-source">
+                        <div class="count">4</div>
+                        <div class="name">Cambridge</div>
+                    </div>
+                    <div class="named-source">
+                        <div class="count">4</div>
+                        <div class="name">Bristol</div>
+                    </div>
+                    <div class="named-source">
+                        <div class="count">4</div>
+                        <div class="name">Liverpool</div>
+                    </div>
+                    <div class="named-source">
+                        <div class="count">4</div>
+                        <div class="name">Leeds</div>
+                    </div>
+                    <div class="named-source">
+                        <div class="count">3</div>
+                        <div class="name">Edinburgh</div>
+                    </div>
+                </div>
+
+                <div class="tip-box" style="margin-top: 25px;">
+                    <h4>🎯 London Sourcing Hotspots</h4>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>Camden Market</strong> - Flea market, vintage clothing</li>
+                        <li><strong>Portobello Road</strong> - Antiques, vintage</li>
+                        <li><strong>Greenwich Market</strong> - Arts, crafts, antiques</li>
+                        <li><strong>Battersea</strong> - The Decorative Fair</li>
+                        <li><strong>Hatton Garden</strong> - Jewellery specialists</li>
+                        <li><strong>Islington</strong> - Criterion Auctions</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- QUICK REFERENCE -->
+        <section>
+            <h2>📋 Quick Reference Card</h2>
+            <div class="section-content">
+                <table>
+                    <tr>
+                        <th>Source Type</th>
+                        <th>Best For</th>
+                        <th>Price Level</th>
+                        <th>Frequency</th>
+                        <th>Key Names</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Charity Shops</strong></td>
+                        <td>Clothing, books, homeware, furniture</td>
+                        <td><span class="price-tag price-cheap">Cheap</span></td>
+                        <td>Always open</td>
+                        <td>BHF, Oxfam, Emmaus, Sue Ryder</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Car Boot Sales</strong></td>
+                        <td>Toys, collectibles, general vintage</td>
+                        <td><span class="price-tag price-cheap">Very Cheap</span></td>
+                        <td>Weekends</td>
+                        <td>Polmadie (Glasgow), Newark</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Auctions</strong></td>
+                        <td>Furniture, art, specialist items</td>
+                        <td><span class="price-tag price-varied">Variable</span></td>
+                        <td>Weekly/Monthly</td>
+                        <td>John Pye, Bonhams, local salerooms</td>
+                    </tr>
+                    <tr>
+                        <td><strong>House Clearances</strong></td>
+                        <td>Bulk buying, furniture, estate items</td>
+                        <td><span class="price-tag price-varied">Variable</span></td>
+                        <td>Ongoing</td>
+                        <td>Local companies, BHF clearance</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Antique Fairs</strong></td>
+                        <td>Quality antiques, specialist items</td>
+                        <td><span class="price-tag price-moderate">Moderate-High</span></td>
+                        <td>Monthly/Quarterly</td>
+                        <td>Newark, Sunbury, Ardingly</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Flea Markets</strong></td>
+                        <td>Vintage, curiosities, mixed items</td>
+                        <td><span class="price-tag price-moderate">Moderate</span></td>
+                        <td>Weekly</td>
+                        <td>Camden, Portobello, Greenwich</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Jumble Sales</strong></td>
+                        <td>Bargain hunting, hidden gems</td>
+                        <td><span class="price-tag price-cheap">Very Cheap</span></td>
+                        <td>Occasional</td>
+                        <td>Church halls, village halls</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <footer>
+            <p>Generated from analysis of 10,678 UK Reddit posts | Data extracted using LLM classification</p>
+            <p>© 2026 Sourcing Team Reference Guide</p>
+        </footer>
+    </div>
+</body>
+</html>
