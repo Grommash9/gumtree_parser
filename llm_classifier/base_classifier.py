@@ -63,10 +63,19 @@ class BaseClassifier(ABC):
         """Parse Stage 1 response. Returns list of extracted items."""
         pass
 
+    # Keywords that indicate potentially relevant comments (override in subclass)
+    relevance_keywords: List[str] = []
+
+    # Maximum comments to include
+    max_comments: int = 50
+
+    # Maximum document characters (~4000 tokens)
+    max_doc_chars: int = 16000
+
     def build_document(self, post: Dict[str, Any]) -> str:
         """
         Build a single document from post + comments for LLM processing.
-        Returns concatenated text with clear sections.
+        Prioritizes relevant comments and limits document size.
         """
         lines = []
 
@@ -82,26 +91,74 @@ class BaseClassifier(ABC):
             lines.append(selftext)
             lines.append("")
 
-        # Comments section
+        # Filter and prioritize comments
         comments = post.get('comments', [])
-        if comments:
+        selected_comments = self._select_comments(comments)
+
+        if selected_comments:
             lines.append("=== COMMENTS ===")
-            for i, comment in enumerate(comments, 1):
+            for i, comment in enumerate(selected_comments, 1):
                 author = comment.get('author', '[deleted]')
                 body = comment.get('body', '')
                 score = comment.get('score', 0)
-                depth = comment.get('depth', 0)
 
-                # Skip deleted/removed comments
-                if body in ['[deleted]', '[removed]', '']:
-                    continue
-
-                indent = "  " * depth
-                lines.append(f"{indent}[Comment {i} by u/{author} (score: {score})]:")
-                lines.append(f"{indent}{body}")
+                lines.append(f"[Comment {i} (score: {score})]:")
+                lines.append(body)
                 lines.append("")
 
-        return "\n".join(lines)
+        doc = "\n".join(lines)
+
+        # Truncate if too long
+        if len(doc) > self.max_doc_chars:
+            doc = doc[:self.max_doc_chars] + "\n... [truncated]"
+
+        return doc
+
+    def _select_comments(self, comments: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Select most relevant comments for processing.
+        Prioritizes comments with keywords, then by score.
+        """
+        if not comments:
+            return []
+
+        # Filter out deleted/removed/empty comments
+        valid_comments = [
+            c for c in comments
+            if c.get('body', '') not in ['[deleted]', '[removed]', '']
+            and len(c.get('body', '')) > 10  # Skip very short comments
+        ]
+
+        if not valid_comments:
+            return []
+
+        # If we have relevance keywords, prioritize matching comments
+        if self.relevance_keywords:
+            keyword_matches = []
+            other_comments = []
+
+            for comment in valid_comments:
+                body_lower = comment.get('body', '').lower()
+                if any(kw in body_lower for kw in self.relevance_keywords):
+                    keyword_matches.append(comment)
+                else:
+                    other_comments.append(comment)
+
+            # Sort each group by score
+            keyword_matches.sort(key=lambda x: x.get('score', 0), reverse=True)
+            other_comments.sort(key=lambda x: x.get('score', 0), reverse=True)
+
+            # Take keyword matches first, then fill with top-scored others
+            selected = keyword_matches[:self.max_comments]
+            remaining_slots = self.max_comments - len(selected)
+            if remaining_slots > 0:
+                selected.extend(other_comments[:remaining_slots])
+
+            return selected
+        else:
+            # No keywords - just take top by score
+            valid_comments.sort(key=lambda x: x.get('score', 0), reverse=True)
+            return valid_comments[:self.max_comments]
 
     def classify_post(self, post_id: str) -> Dict[str, Any]:
         """

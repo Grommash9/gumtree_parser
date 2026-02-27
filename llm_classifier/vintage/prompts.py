@@ -1,91 +1,90 @@
 """
 Prompts for Vintage sourcing market classifier.
-Extracts information about where people find vintage items in the UK.
+Extracts UK locations where people find vintage/antique items to resell.
 """
 
 
 STAGE0_SYSTEM = "You are a content classifier. Return only valid JSON."
 
-STAGE0_PROMPT = """Analyze this Reddit post and comments to determine if it mentions SPECIFIC NAMED sourcing locations for vintage, antique, or collectible items IN THE UK.
+STAGE0_PROMPT = """Analyze this UK Reddit post. Does it mention WHERE to SOURCE vintage, antique, or secondhand items for reselling?
 
-We are ONLY interested in:
-- UK-based locations (England, Scotland, Wales, Northern Ireland)
-- SPECIFIC NAMED places (e.g., "Sunbury Antiques Market", "Newark Antiques Fair", "Ardingly", "Kempton Park")
-- Car boot sales with specific names/locations
-- Charity shops with location (e.g., "British Heart Foundation in Manchester")
-- Antique centres/malls with names
-- Auction houses with names (e.g., "Hansons", "Fieldings")
+This is from a UK subreddit, so all mentions are UK-based unless explicitly stated otherwise.
 
-We are NOT interested in:
-- Generic mentions without specific names (e.g., just "charity shops" or "car boot sales")
-- US/non-UK locations
-- Online-only sources (eBay, Etsy, Facebook Marketplace)
-- Vague references without a specific place name
+VALID - we want posts discussing:
+- Car boot sales (any mention - "car boots", "boot sales", specific names like Denham, Wimbledon)
+- Charity shops (any mention for sourcing/reselling purposes)
+- Antique fairs/markets (Newark, Ardingly, Sunbury, or generic "antique fairs")
+- Auction houses (Hansons, Fieldings, or "local auctions")
+- Antique centres/shops
+- House clearances, estate sales
+- Flea markets, jumble sales
+- Tips about physical places to find items to flip/resell
+
+NOT VALID - ignore:
+- Food/drink venues (chip shops, cafes, restaurants)
+- New furniture retailers (DFS, Sofology, IKEA)
+- Record shops, music stores
+- Bullion/coin dealers
+- Museums, gift shops
+- Online-only platforms (eBay, Etsy, Facebook, Vinted, Depop)
+- US stores (Goodwill, Value Village, Savers, thrift stores)
+- Posts ONLY about selling items, not sourcing them
 
 {document}
 
-Return a JSON object:
+Return JSON:
 {{
     "is_relevant": true/false,
-    "is_uk": true/false,
-    "has_named_source": true/false,
     "reason": "Brief explanation"
 }}
 
-Return is_relevant=true ONLY if:
-1. The content is clearly about UK locations (is_uk=true)
-2. At least one SPECIFIC NAMED source is mentioned (has_named_source=true)
-
-If unsure whether it's UK or if no specific names are mentioned, return is_relevant=false."""
+Return is_relevant=true if post mentions any physical places/venues for sourcing secondhand items."""
 
 
-STAGE1_PROMPT = """Extract ALL NAMED UK sourcing locations mentioned in this Reddit post and comments.
+STAGE1_PROMPT = """Extract sourcing locations from this UK Reddit post and comments.
+
+This is from a UK subreddit - assume all mentions are UK-based.
 
 {document}
 
-For EACH sourcing location mentioned, extract:
-- source_type: One of: antique_fair, antique_centre, car_boot_sale, charity_shop, auction_house, flea_market, vintage_shop, other
-- source_name: The SPECIFIC NAME (REQUIRED - skip if no name given)
-- source_location: City, county, or region in UK
-- source_frequency: How often it runs (weekly, monthly, annual, one-time) if mentioned
-- item_categories: What types of items are found there (array)
-- price_quality: cheap, good_deals, expensive, mixed, or null
-- original_quote: The exact text that mentions this source (keep it brief, 1-2 sentences max)
-- confidence: Your confidence score 0.0-1.0
+EXTRACT these venue types:
+1. CAR BOOT SALES: Any car boot mention (specific name or generic "car boots")
+2. CHARITY SHOPS: Any charity shop mention for sourcing/reselling
+3. ANTIQUE FAIRS: Newark, Ardingly, Sunbury, or generic "antique fairs"
+4. AUCTION HOUSES: Named houses or generic "auctions"/"local auctions"
+5. ANTIQUE CENTRES/SHOPS: Named or generic mentions
+6. HOUSE CLEARANCES/ESTATE SALES
+7. FLEA MARKETS, JUMBLE SALES
 
-Return a JSON object:
+DO NOT extract:
+- Food venues (chip shops, cafes, restaurants)
+- New furniture retailers (DFS, IKEA)
+- Record/music shops
+- Online platforms (eBay, Vinted, Facebook)
+- US stores (Goodwill, thrift stores)
+
+Return JSON:
 {{
     "sources": [
         {{
-            "source_type": "antique_fair",
-            "source_name": "Newark Antiques Fair",
-            "source_location": "Newark, Nottinghamshire",
-            "source_frequency": "monthly",
-            "item_categories": ["furniture", "ceramics", "silver"],
-            "price_quality": "mixed",
-            "original_quote": "Newark is brilliant for furniture, I go every month",
-            "confidence": 0.95
-        }},
-        {{
             "source_type": "car_boot_sale",
-            "source_name": "Denham Car Boot",
-            "source_location": "Denham, Buckinghamshire",
+            "source_name": "Car boot sales",
+            "source_location": "UK (general)",
             "source_frequency": "weekly",
-            "item_categories": ["bric-a-brac", "vintage"],
+            "item_categories": ["general"],
             "price_quality": "cheap",
-            "original_quote": "Denham car boot on Sundays is great",
-            "confidence": 0.9
+            "original_quote": "I source from car boots",
+            "confidence": 0.8
         }}
     ]
 }}
 
-IMPORTANT RULES:
-- ONLY include UK locations
-- ONLY include sources with SPECIFIC NAMES (skip generic "charity shops" or "local car boot")
-- Skip online marketplaces (eBay, Etsy, Facebook, Vinted, etc.)
-- Include sources from both the post AND comments
-- If the same source is mentioned multiple times, only include it once
-- If no NAMED UK sources are found, return {{"sources": []}}"""
+Notes:
+- source_type: car_boot_sale, charity_shop, antique_fair, auction_house, antique_centre, flea_market, house_clearance, jumble_sale
+- source_name: Specific name if mentioned, or generic like "Car boot sales", "Charity shops"
+- source_location: Named location if mentioned, otherwise "UK (general)"
+- Extract ALL distinct sourcing venues/types mentioned
+- If no sourcing venues mentioned, return {{"sources": []}}"""
 
 
 def get_stage0_prompt(document: str) -> str:

@@ -20,6 +20,20 @@ class VintageClassifier(BaseClassifier):
     - Types of items found, price quality
     """
 
+    # Keywords to prioritize comments mentioning sourcing locations
+    relevance_keywords = [
+        'car boot', 'boot sale', 'carboot',
+        'charity shop', 'charity store',
+        'auction', 'auctioneer',
+        'antique', 'antiques fair', 'antique centre', 'antique shop',
+        'flea market', 'jumble sale', 'jumble',
+        'house clearance', 'estate sale',
+        'thrift', 'secondhand', 'second hand',
+        'source', 'sourcing', 'find stuff', 'find items',
+        'newark', 'ardingly', 'sunbury', 'kempton', 'shepton',
+        'hemswell', 'alfies', 'grays',
+    ]
+
     @property
     def classifier_type(self) -> str:
         return "vintage"
@@ -40,13 +54,8 @@ class VintageClassifier(BaseClassifier):
         if not result:
             return {'is_relevant': False, 'relevance_reason': 'Failed to parse response'}
 
-        # Must be UK AND have named source to be relevant
-        is_uk = result.get('is_uk', False)
-        has_named_source = result.get('has_named_source', False)
-        is_relevant = result.get('is_relevant', False) and is_uk and has_named_source
-
         return {
-            'is_relevant': is_relevant,
+            'is_relevant': result.get('is_relevant', False),
             'relevance_reason': result.get('reason', '')
         }
 
