@@ -4,8 +4,9 @@ Abstract base class that defines the classification pipeline.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime, timezone
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from common.database import (
     get_post_with_comments,
@@ -13,6 +14,7 @@ from common.database import (
     update_post_status,
     insert_classification_results,
 )
+from common.config import PARALLEL_WORKERS
 from llm_classifier.azure_client import call_llm, parse_json_response, parse_json_array_response
 
 
@@ -200,9 +202,29 @@ class BaseClassifier(ABC):
 
         insert_classification_results(self.results_table, items)
 
-    def process_batch(self, limit: int = 50) -> Dict[str, Any]:
+    def _process_single(self, idx: int, total: int, post: Dict[str, Any]) -> Tuple[int, Dict[str, Any]]:
+        """Process a single post. Returns (idx, classification_result)."""
+        post_id = post['post_id']
+        subreddit = post.get('subreddit', '?')
+
+        try:
+            classification = self.classify_post(post_id)
+
+            if classification.get('is_relevant'):
+                items_count = len(classification.get('results', []))
+                print(f"[{idx}/{total}] r/{subreddit} - {post_id} ... RELEVANT ({items_count} items)", flush=True)
+            else:
+                print(f"[{idx}/{total}] r/{subreddit} - {post_id} ... not relevant", flush=True)
+
+            return (idx, classification)
+
+        except Exception as e:
+            print(f"[{idx}/{total}] r/{subreddit} - {post_id} ... ERROR: {e}", flush=True)
+            return (idx, {'error': str(e), 'post_id': post_id})
+
+    def process_batch(self, limit: int = None) -> Dict[str, Any]:
         """
-        Process a batch of posts for this classifier.
+        Process a batch of posts for this classifier using parallel workers.
         Returns summary of processing results.
         """
         posts = get_posts_for_classifier(self.classifier_type, limit=limit)
@@ -214,31 +236,38 @@ class BaseClassifier(ABC):
                 'message': 'No posts to process'
             }
 
+        total = len(posts)
         results = {
             'classifier': self.classifier_type,
-            'total': len(posts),
+            'total': total,
             'processed': 0,
             'relevant': 0,
             'items_extracted': 0,
             'errors': 0
         }
 
-        for post in posts:
-            post_id = post['post_id']
+        print(f"\nProcessing {total} posts with {PARALLEL_WORKERS} workers...\n", flush=True)
 
-            try:
-                classification = self.classify_post(post_id)
-                results['processed'] += 1
+        with ThreadPoolExecutor(max_workers=PARALLEL_WORKERS) as executor:
+            futures = {
+                executor.submit(self._process_single, idx, total, post): post
+                for idx, post in enumerate(posts, 1)
+            }
 
-                if classification.get('is_relevant'):
-                    results['relevant'] += 1
-                    results['items_extracted'] += len(classification.get('results', []))
+            for future in as_completed(futures):
+                try:
+                    idx, classification = future.result()
+                    results['processed'] += 1
 
-                if 'error' in classification:
+                    if classification.get('is_relevant'):
+                        results['relevant'] += 1
+                        results['items_extracted'] += len(classification.get('results', []))
+
+                    if 'error' in classification:
+                        results['errors'] += 1
+
+                except Exception as e:
+                    print(f"Future error: {e}", flush=True)
                     results['errors'] += 1
-
-            except Exception as e:
-                print(f"Error processing {post_id}: {e}")
-                results['errors'] += 1
 
         return results

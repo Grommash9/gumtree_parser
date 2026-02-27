@@ -46,7 +46,7 @@ AZURE_TPM_LIMIT = int(AZURE_TPM_QUOTA * AZURE_TPM_TARGET)  # Effective limit
 # Processing Configuration
 # ============================================
 
-PARALLEL_WORKERS = int(os.getenv('PARALLEL_WORKERS', '5'))
+PARALLEL_WORKERS = int(os.getenv('PARALLEL_WORKERS', '3'))
 BATCH_SIZE = int(os.getenv('BATCH_SIZE', '50'))
 MAX_RETRIES = 5
 RETRY_DELAY = 2

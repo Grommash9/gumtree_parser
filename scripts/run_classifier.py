@@ -43,8 +43,8 @@ def main():
     parser = argparse.ArgumentParser(description='Run Reddit post classification')
     parser.add_argument('classifier', choices=list(CLASSIFIERS.keys()),
                         help='Classifier type to run')
-    parser.add_argument('--limit', type=int, default=50,
-                        help='Maximum posts to process (default: 50)')
+    parser.add_argument('--limit', type=int, default=None,
+                        help='Maximum posts to process (default: all)')
     parser.add_argument('--post', type=str,
                         help='Process a single post by ID')
     parser.add_argument('--stats-only', action='store_true',
@@ -126,7 +126,8 @@ def main():
                 print(f"  {i}. {item}")
 
     else:
-        print(f"\nProcessing batch (limit: {args.limit})...")
+        limit_str = str(args.limit) if args.limit else "all"
+        print(f"\nProcessing batch (limit: {limit_str})...")
         results = classifier.process_batch(limit=args.limit)
 
         print(f"\nBatch results:")

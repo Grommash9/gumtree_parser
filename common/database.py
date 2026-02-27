@@ -165,7 +165,7 @@ def get_posts_by_subreddit(subreddit: str, limit: int = 1000) -> List[Dict[str, 
         return list(cur.fetchall())
 
 
-def get_posts_for_classifier(classifier_type: str, limit: int = 100) -> List[Dict[str, Any]]:
+def get_posts_for_classifier(classifier_type: str, limit: int = None) -> List[Dict[str, Any]]:
     """
     Get posts that need classification for a specific classifier type.
     Only returns posts from subreddits mapped to this classifier.
@@ -173,7 +173,7 @@ def get_posts_for_classifier(classifier_type: str, limit: int = 100) -> List[Dic
     status_table = f"{classifier_type}_post_status"
 
     with get_cursor() as cur:
-        cur.execute(f"""
+        query = f"""
             SELECT p.*
             FROM reddit_posts p
             JOIN subreddit_classifiers sc ON p.subreddit = sc.subreddit
@@ -181,8 +181,11 @@ def get_posts_for_classifier(classifier_type: str, limit: int = 100) -> List[Dic
             WHERE sc.classifier_type = %s
               AND (s.post_id IS NULL OR s.llm_processed = FALSE)
             ORDER BY p.created_utc DESC
-            LIMIT %s
-        """, (classifier_type, limit))
+        """
+        if limit:
+            query += f" LIMIT {int(limit)}"
+
+        cur.execute(query, (classifier_type,))
         return list(cur.fetchall())
 
 

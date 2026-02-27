@@ -40,8 +40,13 @@ class VintageClassifier(BaseClassifier):
         if not result:
             return {'is_relevant': False, 'relevance_reason': 'Failed to parse response'}
 
+        # Must be UK AND have named source to be relevant
+        is_uk = result.get('is_uk', False)
+        has_named_source = result.get('has_named_source', False)
+        is_relevant = result.get('is_relevant', False) and is_uk and has_named_source
+
         return {
-            'is_relevant': result.get('is_relevant', False),
+            'is_relevant': is_relevant,
             'relevance_reason': result.get('reason', '')
         }
 
