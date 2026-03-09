@@ -30,12 +30,14 @@ from llm_classifier.rate_limiter import rate_limiter
 from llm_classifier.vintage.classifier import VintageClassifier
 from llm_classifier.sex.classifier import SexClassifier
 from llm_classifier.housing.classifier import HousingClassifier
+from llm_classifier.flipping.classifier import FlippingClassifier
 
 
 CLASSIFIERS = {
     'vintage': VintageClassifier,
     'sex': SexClassifier,
     'housing': HousingClassifier,
+    'flipping': FlippingClassifier,
 }
 
 

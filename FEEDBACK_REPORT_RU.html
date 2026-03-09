@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlipperHelper — Анализ обратной связи Reddit</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --border: #334155;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --green: #4ade80;
+    --yellow: #fbbf24;
+    --red: #f87171;
+    --orange: #fb923c;
+    --purple: #a78bfa;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 2rem;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.25rem;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+  }
+  h2 {
+    font-size: 1.5rem;
+    color: var(--accent);
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  h3 {
+    font-size: 1.15rem;
+    color: var(--text);
+    margin: 1.5rem 0 0.75rem;
+  }
+  .summary-text {
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+  }
+  /* Summary table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0 1.5rem;
+    font-size: 0.9rem;
+  }
+  th {
+    background: var(--card);
+    color: var(--accent);
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid var(--border);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  td {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  tr:hover td { background: rgba(56, 189, 248, 0.05); }
+  .badge {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .badge-yes { background: rgba(74, 222, 128, 0.15); color: var(--green); }
+  .badge-no { background: rgba(248, 113, 113, 0.15); color: var(--red); }
+  .badge-partial { background: rgba(251, 191, 36, 0.15); color: var(--yellow); }
+  /* Cards */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+  .card-header h3 { margin: 0; }
+  .mentions {
+    background: rgba(56, 189, 248, 0.1);
+    color: var(--accent);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .coverage-line {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .pain-list {
+    list-style: none;
+    margin: 0.75rem 0;
+  }
+  .pain-list li {
+    padding: 0.3rem 0 0.3rem 1.25rem;
+    position: relative;
+    color: var(--muted);
+  }
+  .pain-list li::before {
+    content: '\2022';
+    color: var(--red);
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+  }
+  .feature-list li::before { color: var(--green); }
+  blockquote {
+    border-left: 3px solid var(--purple);
+    padding: 0.5rem 1rem;
+    margin: 0.5rem 0;
+    background: rgba(167, 139, 250, 0.05);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.9rem;
+    color: var(--muted);
+    font-style: italic;
+  }
+  blockquote .author {
+    color: var(--purple);
+    font-style: normal;
+    font-weight: 600;
+  }
+  /* Sub-topics */
+  .subtopics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.75rem 0;
+  }
+  .subtopic {
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    padding: 0.2rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: var(--accent);
+  }
+  /* Priority badges */
+  .priority-p0 { background: rgba(248, 113, 113, 0.15); color: var(--red); border: 1px solid rgba(248, 113, 113, 0.3); }
+  .priority-p1 { background: rgba(251, 191, 36, 0.15); color: var(--yellow); border: 1px solid rgba(251, 191, 36, 0.3); }
+  .priority-p2 { background: rgba(74, 222, 128, 0.15); color: var(--green); border: 1px solid rgba(74, 222, 128, 0.3); }
+  .effort-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  /* Seekers table */
+  .seekers-count {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--green));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.25rem;
+  }
+  .seekers-label {
+    color: var(--muted);
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  /* Recommendations grid */
+  .rec-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .rec-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    border-left: 4px solid;
+  }
+  .rec-card.p0 { border-left-color: var(--red); }
+  .rec-card.p1 { border-left-color: var(--yellow); }
+  .rec-card.p2 { border-left-color: var(--green); }
+  .rec-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .rec-meta {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+  }
+  .rec-rationale {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  /* Marketing */
+  .marketing-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .marketing-feature { font-weight: 600; }
+  .marketing-problem { color: var(--muted); font-size: 0.9rem; }
+  .marketing-volume {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 1.1rem;
+    white-space: nowrap;
+  }
+  /* Stat boxes */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .stat-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+  .stat-label { color: var(--muted); font-size: 0.85rem; }
+  .stat-pain .stat-num { color: var(--red); }
+  .stat-feat .stat-num { color: var(--green); }
+  .stat-dis .stat-num { color: var(--yellow); }
+  .stat-total .stat-num { color: var(--accent); }
+  .stat-seekers .stat-num { color: var(--purple); }
+  /* Quote highlight card */
+  .quote-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+  .quote-area {
+    display: inline-block;
+    background: rgba(167, 139, 250, 0.12);
+    color: var(--purple);
+    padding: 0.15rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  .quote-text {
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 0.25rem;
+  }
+  .quote-author { color: var(--purple); font-weight: 600; font-size: 0.85rem; }
+  footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+  @media (max-width: 768px) {
+    body { padding: 1rem; }
+    h1 { font-size: 1.5rem; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<h1>FlipperHelper — Анализ обратной связи Reddit</h1>
+<p class="subtitle">Сгенерировано: 05.03.2026 | Источник: сообщество r/Flipping (4 248 релевантных записей)</p>
+
+<div class="stats-row">
+  <div class="stat-box stat-total"><div class="stat-num">4 248</div><div class="stat-label">Всего записей</div></div>
+  <div class="stat-box stat-pain"><div class="stat-num">2 019</div><div class="stat-label">Боли</div></div>
+  <div class="stat-box stat-feat"><div class="stat-num">1 773</div><div class="stat-label">Запросы фич</div></div>
+  <div class="stat-box stat-dis"><div class="stat-num">456</div><div class="stat-label">Недовольства</div></div>
+  <div class="stat-box stat-seekers"><div class="stat-num">2 314</div><div class="stat-label">Ищут инструмент</div></div>
+</div>
+
+<!-- ===== EXECUTIVE SUMMARY ===== -->
+<h2>Обзор</h2>
+<p class="summary-text">Анализ 4 248 записей обратной связи от сообщества r/Flipping на Reddit, сгруппированных по темам, релевантным для FlipperHelper. Каждая тема сопоставлена с текущими функциями приложения для определения пробелов и возможностей.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Тема</th><th>Боли</th><th>Запросы фич</th><th>Недовольства</th><th>Высокая интенсивность</th><th>Покрытие</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Управление листингами</td><td>474</td><td>409</td><td>103</td><td>408</td><td><span class="badge badge-yes">ЕСТЬ</span></td></tr>
+    <tr><td>Расходы и комиссии</td><td>322</td><td>196</td><td>91</td><td>287</td><td><span class="badge badge-yes">ЕСТЬ</span></td></tr>
+    <tr><td>Управление инвентарём</td><td>274</td><td>246</td><td>25</td><td>207</td><td><span class="badge badge-partial">ЧАСТИЧНО</span></td></tr>
+    <tr><td>Прибыль и финансы</td><td>193</td><td>225</td><td>36</td><td>193</td><td><span class="badge badge-yes">ЕСТЬ</span></td></tr>
+    <tr><td>Доставка и логистика</td><td>229</td><td>158</td><td>43</td><td>183</td><td><span class="badge badge-no">НЕТ</span></td></tr>
+    <tr><td>Цены и оценка</td><td>165</td><td>148</td><td>59</td><td>155</td><td><span class="badge badge-no">НЕТ</span></td></tr>
+    <tr><td>Отслеживание продаж</td><td>96</td><td>118</td><td>25</td><td>85</td><td><span class="badge badge-yes">ЕСТЬ</span></td></tr>
+    <tr><td>Рынки и закупки</td><td>46</td><td>63</td><td>12</td><td>42</td><td><span class="badge badge-partial">ЧАСТИЧНО</span></td></tr>
+    <tr><td>Инструменты платформ</td><td>53</td><td>49</td><td>13</td><td>44</td><td><span class="badge badge-partial">ЧАСТИЧНО</span></td></tr>
+    <tr><td>Мобильное приложение</td><td>44</td><td>44</td><td>24</td><td>48</td><td><span class="badge badge-yes">ЕСТЬ</span></td></tr>
+    <tr><td>Управление фото</td><td>40</td><td>36</td><td>9</td><td>31</td><td><span class="badge badge-yes">ЕСТЬ</span></td></tr>
+    <tr><td>Массовые операции</td><td>23</td><td>20</td><td>2</td><td>23</td><td><span class="badge badge-no">НЕТ</span></td></tr>
+    <tr><td>Налоги и отчётность</td><td>13</td><td>15</td><td>4</td><td>17</td><td><span class="badge badge-partial">ЧАСТИЧНО</span></td></tr>
+    <tr><td>Управление временем</td><td>9</td><td>0</td><td>1</td><td>7</td><td><span class="badge badge-no">НЕТ</span></td></tr>
+  </tbody>
+</table>
+
+<!-- ===== PART 1 ===== -->
+<h2>Часть 1: Боли, которые наше приложение уже решает (маркетинговые углы)</h2>
+<p class="summary-text">Проблемы, на которые люди активно жалуются, и которые FlipperHelper уже решает.</p>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Прибыль и финансовый учёт</h3>
+    <span class="mentions">454 упоминания</span>
+  </div>
+  <p class="coverage-line"><span class="badge badge-yes">ЕСТЬ</span> Чистая прибыль, график прибыли по месяцам, стоимость инвентаря, разбивка расходов</p>
+  <ul class="pain-list">
+    <li>Люди не могут определить реальную прибыль после всех расходов</li>
+    <li>Ручное отслеживание в таблицах — трудоёмкое и подвержено ошибкам</li>
+    <li>Нет ясности, прибылен ли перепродажный бизнес на самом деле</li>
+  </ul>
+  <blockquote>"I have an excel spreadsheet but am finding it time consuming to enter all of that manually (fees, etc)..." <span class="author">— u/XxtheBugmanxX</span></blockquote>
+  <blockquote>"Every other accounting service I've found leaves at least one of those boxes unchecked." <span class="author">— u/DuePassenger5</span></blockquote>
+  <blockquote>"struggling to find an user friendly software that allows me to track the amount I'm spending on materials..." <span class="author">— u/Electrical-Praline85</span></blockquote>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Расходы и комиссии</h3>
+    <span class="mentions">609 упоминаний</span>
+  </div>
+  <p class="coverage-line"><span class="badge badge-yes">ЕСТЬ</span> Входные билеты, транспортные расходы (6 типов), разбивка по рынкам</p>
+  <ul class="pain-list">
+    <li>Входные билеты, бензин и комиссии платформ незаметно съедают маржу</li>
+    <li>Люди забывают учесть все расходы при подсчёте прибыли</li>
+    <li>Нет простого способа отслеживать расходы по каждому рынку</li>
+  </ul>
+  <blockquote>"It's also annoying that sometimes the rate starts at say 5% and then a day later it's at 9%, just feels like they're trying to take more and more money." <span class="author">— u/Epic-will-power91</span></blockquote>
+  <blockquote>"It just takes so much time and energy and I'm not as young now." <span class="author">— u/balls82</span></blockquote>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Управление листингами</h3>
+    <span class="mentions">986 упоминаний</span>
+  </div>
+  <p class="coverage-line"><span class="badge badge-yes">ЕСТЬ</span> 14 платформ, отслеживание по каждому товару, даты размещения</p>
+  <ul class="pain-list">
+    <li>Управление листингами на 5+ платформах перегружает</li>
+    <li>Потеря информации о том, где товар размещён</li>
+    <li>Нет единого представления статуса листингов</li>
+  </ul>
+  <blockquote>"They press the little auto generate button or use chatGPT and they get incorrect data or vast amounts of text back." <span class="author">— u/GenericModerator2020</span></blockquote>
+  <blockquote>"It's getting 100% of the measurements wrong and a solid 75% of the item specifics wrong for me." <span class="author">— u/Omniporpoise</span></blockquote>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Управление фотографиями</h3>
+    <span class="mentions">85 упоминаний</span>
+  </div>
+  <p class="coverage-line"><span class="badge badge-yes">ЕСТЬ</span> Съёмка с камеры, хранение фото, синхронизация с Google Drive</p>
+  <ul class="pain-list">
+    <li>Перенос фото между устройствами медленный и мучительный</li>
+    <li>Случайное удаление фото товаров</li>
+    <li>Управление памятью на телефоне — кошмар</li>
+  </ul>
+  <blockquote>"I HATE HATE describing and taking pics of the lenses over and over..." <span class="author">— u/scratchoffmilli</span></blockquote>
+  <blockquote>"I want something that lets me select X pictures and perform the same modification." <span class="author">— u/Drk_Knight71</span></blockquote>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Отслеживание продаж</h3>
+    <span class="mentions">239 упоминаний</span>
+  </div>
+  <p class="coverage-line"><span class="badge badge-yes">ЕСТЬ</span> Цена продажи, платформа, способ оплаты, расчёт прибыли, дни до продажи</p>
+  <ul class="pain-list">
+    <li>Нет простого способа отслеживать что продано, где и по какой цене</li>
+    <li>Невозможно рассчитать время до продажи или определить быстро продаваемые товары</li>
+    <li>Отслеживание способов оплаты по платформам — ручной процесс</li>
+  </ul>
+  <blockquote>"my FB Account gets suspended for god knows what reason and forces me to appeal for selfie video check." <span class="author">— u/Dull-Philosophy2764</span></blockquote>
+</div>
+
+<!-- ===== PART 2 ===== -->
+<h2>Часть 2: Пробелы — востребованные функции, которых у нас ещё нет</h2>
+<p class="summary-text">Самые большие возможности для отличия от конкурентов и роста.</p>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Цены и оценка стоимости</h3>
+    <span class="mentions">372 упоминания</span>
+  </div>
+  <p class="coverage-line"><span class="badge badge-no">НЕТ В ПРИЛОЖЕНИИ</span></p>
+  <p><strong>Проблема:</strong> Пользователи отчаянно хотят инструменты для поиска цен/сравнения, чтобы знать стоимость товаров перед покупкой.</p>
+  <p><strong>Возможность:</strong> Добавить поиск проданных лотов на eBay или оценку цены. Может быть премиум-функцией.</p>
+  <div class="subtopics">
+    <span class="subtopic">ценовая стратегия (45)</span>
+    <span class="subtopic">прозрачность цен (14)</span>
+    <span class="subtopic">отслеживание цен (13)</span>
+  </div>
+  <blockquote>"Where possible, generate a price estimate based on the SPECIFIC item, not general items in the same category..." <span class="author">— u/obdurant93</span></blockquote>
+  <blockquote>"It simply isn't feasible to do that manually for over 1k items..." <span class="author">— u/obdurant93</span></blockquote>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Доставка и логистика</h3>
+    <span class="mentions">430 упоминаний</span>
+  </div>
+  <p class="coverage-line"><span class="badge badge-no">НЕТ В ПРИЛОЖЕНИИ</span></p>
+  <p><strong>Проблема:</strong> Расчёт стоимости доставки, сравнение служб и логистика — основные болевые точки.</p>
+  <p><strong>Возможность:</strong> Добавить расчёт стоимости доставки по товару (вес/габариты). Даже простой калькулятор поможет.</p>
+  <div class="subtopics">
+    <span class="subtopic">управление доставкой (103)</span>
+    <span class="subtopic">варианты доставки (28)</span>
+    <span class="subtopic">этикетки (21)</span>
+    <span class="subtopic">процесс доставки (16)</span>
+  </div>
+  <blockquote>"I spent hours figuring out how to navigate a return case to a foreign country." <span class="author">— u/hammershell12</span></blockquote>
+  <blockquote>"I've had SOOO many issues with inaccurate tracking, orders getting lost, orders being sent back..." <span class="author">— u/jayngry</span></blockquote>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Массовые операции</h3>
+    <span class="mentions">45 упоминаний</span>
+  </div>
+  <p class="coverage-line"><span class="badge badge-no">НЕТ В ПРИЛОЖЕНИИ</span></p>
+  <p><strong>Проблема:</strong> Опытные продавцы нуждаются в пакетном редактировании, массовом переразмещении и автоматизации.</p>
+  <p><strong>Возможность:</strong> Добавить массовое обновление цен, пакетное изменение статусов и массовый экспорт.</p>
+  <blockquote>"I stopped searching manually... I used Freebie Alerts for free stuff, and DealScout for everything else." <span class="author">— u/ShrimpyEatWorld6</span></blockquote>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Налоги и отчётность</h3>
+    <span class="mentions">32 упоминания</span>
+  </div>
+  <p class="coverage-line"><span class="badge badge-partial">ЧАСТИЧНО</span> Есть CSV-экспорт, но нет налоговых отчётов</p>
+  <p><strong>Проблема:</strong> Налоговая отчётность для перепродавцов сложна (пороги 1099-K, налог с продаж, вычеты).</p>
+  <p><strong>Возможность:</strong> Добавить налоговые сводки, категоризированные вычеты и годовые отчёты о прибылях/убытках.</p>
+  <blockquote>"just looking for something or some app where I can snap a picture of the receipt and it'll compile everything." <span class="author">— u/Emerell2017</span></blockquote>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Управление временем</h3>
+    <span class="mentions">10 упоминаний</span>
+  </div>
+  <p class="coverage-line"><span class="badge badge-no">НЕТ В ПРИЛОЖЕНИИ</span></p>
+  <p><strong>Проблема:</strong> Перепродавцы хотят знать свою реальную почасовую ставку, но не могут отследить затраченное время.</p>
+  <p><strong>Возможность:</strong> Добавить таймер для закупочных поездок и листинга для расчёта $/час.</p>
+  <blockquote>"My biggest challenges are time to complete the jewelry in a timely manner... you can definitely get burnt out from the rush of orders." <span class="author">— u/Missy1726</span></blockquote>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3>Рынки и закупки</h3>
+    <span class="mentions">121 упоминание</span>
+  </div>
+  <p class="coverage-line"><span class="badge badge-partial">ЧАСТИЧНО</span> Есть рынки с геолокацией</p>
+  <p><strong>Проблема:</strong> Найти хорошие места для закупок (секонд-хенды, распродажи, барахолки) сложно.</p>
+  <p><strong>Возможность:</strong> Улучшить геолокацию с помощью общих мест от сообщества или календарей мероприятий.</p>
+  <blockquote>"Facebook could make BANK if they pushed resources into Marketplace and away from their stupid metaverse project." <span class="author">— u/faelanae</span></blockquote>
+</div>
+
+<!-- ===== PART 3 ===== -->
+<h2>Часть 3: Люди, которые активно ищут инструмент как FlipperHelper</h2>
+<p class="summary-text">Пользователи, которые явно выражают потребность в инструментах для отслеживания и управления.</p>
+
+<div class="seekers-count">2 314</div>
+<p class="seekers-label">уникальных случаев, когда пользователи выражают потребность в инструментах, подобных нашим</p>
+
+<table>
+  <thead>
+    <tr><th>Область</th><th>Кол-во</th><th>Пример цитаты</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Управление листингами</td><td>172</td><td><em>"Once you break the 200 item mark for eBay you have to audit your inventory once in awhile."</em></td></tr>
+    <tr><td>Управление доставкой</td><td>167</td><td><em>"the shipping is killing all the profits. It's insane."</em></td></tr>
+    <tr><td>Управление инвентарём</td><td>163</td><td><em>"If I take my business full time, I plan to get a bookkeeper or bookkeeping software."</em></td></tr>
+    <tr><td>Отслеживание инвентаря</td><td>80</td><td><em>"I was going to make a post about how disparate Goodwills are."</em></td></tr>
+    <tr><td>Отслеживание прибыли</td><td>56</td><td><em>"So is there a percentage of profit that you set as a minimum..."</em></td></tr>
+    <tr><td>Расчёт прибыли</td><td>46</td><td><em>"You really need to look at your hourly rate."</em></td></tr>
+    <tr><td>Процесс листинга</td><td>46</td><td><em>"I can't believe how long listing takes."</em></td></tr>
+    <tr><td>Кросс-листинг</td><td>40</td><td><em>"If one platform suddenly goes dead but another takes off, you don't want to have to take time to learn that platform."</em></td></tr>
+    <tr><td>Ценовая стратегия</td><td>34</td><td><em>"Have him price out everything he wants to sell as well as a minimum floor price."</em></td></tr>
+    <tr><td>Оптимизация листингов</td><td>29</td><td><em>"End X number of listings that are ending soonest and have 0 watchers..."</em></td></tr>
+    <tr><td>Решения по доставке</td><td>26</td><td><em>"much of that price is eaten up by my packaging, shipping and eBay's cut..."</em></td></tr>
+    <tr><td>Источники инвентаря</td><td>20</td><td><em>"I have to sift through dozens and dozens of listings to find lots where I can make money."</em></td></tr>
+    <tr><td>Варианты доставки</td><td>20</td><td><em>"It would be great to have a second outlet to eBay to cover my bases."</em></td></tr>
+    <tr><td>Facebook Marketplace</td><td>17</td><td><em>"Common issues I've dealt with include: hilarious lowball offers, 'is this available??' followed by radio silence."</em></td></tr>
+    <tr><td>Управление стоимостью доставки</td><td>16</td><td><em>"How to get cheaper shipping from India? Which courier/aggregator gives best rates?"</em></td></tr>
+  </tbody>
+</table>
+
+<h3>Самые убедительные цитаты «Ищу инструмент»</h3>
+
+<div class="quote-card">
+  <span class="quote-area">приложение для каталога</span>
+  <p class="quote-text">"I need an app to help me catalog my antique purchases from auctions and estate sales."</p>
+  <span class="quote-author">— u/Relax-Enjoy</span>
+</div>
+<div class="quote-card">
+  <span class="quote-area">расчёт прибыли</span>
+  <p class="quote-text">"Calculate if I'm actually making money after materials."</p>
+  <span class="quote-author">— u/Old_Caregiver3270</span>
+</div>
+<div class="quote-card">
+  <span class="quote-area">отслеживание прибыли</span>
+  <p class="quote-text">"Always consider your *true* net profit after a sale - after Ebay's cut, shipping, packaging..."</p>
+  <span class="quote-author">— u/p38-lightning</span>
+</div>
+<div class="quote-card">
+  <span class="quote-area">расчёт комиссий</span>
+  <p class="quote-text">"there never should be a situation where my net earnings are negative after calculating shipping correctly."</p>
+  <span class="quote-author">— u/TheConSpooky</span>
+</div>
+<div class="quote-card">
+  <span class="quote-area">отслеживание прибыли</span>
+  <p class="quote-text">"I made the mistake of not entering everything into a spreadsheet..."</p>
+  <span class="quote-author">— u/gvyledouche</span>
+</div>
+<div class="quote-card">
+  <span class="quote-area">управление возвратами</span>
+  <p class="quote-text">"I have a love/hate relationship with rare music because assholes will buy it just to rip the music and then pull a false INAD..."</p>
+  <span class="quote-author">— u/Flux_My_Capacitor</span>
+</div>
+<div class="quote-card">
+  <span class="quote-area">управление мощностями</span>
+  <p class="quote-text">"My main bottleneck right now is capacity and I have to constantly turn away new potential customers."</p>
+  <span class="quote-author">— u/Educational_Lake2791</span>
+</div>
+
+<!-- ===== PART 4 ===== -->
+<h2>Часть 4: Приоритизированные рекомендации по функциям</h2>
+<p class="summary-text">На основе объёма обратной связи, интенсивности и соответствия видению FlipperHelper.</p>
+
+<div class="rec-grid">
+  <div class="rec-card p0">
+    <div class="rec-title"><span class="badge priority-p0">P0 — ВЫСОКИЙ</span> Калькулятор стоимости доставки</div>
+    <div class="rec-meta"><span class="mentions">430 упоминаний</span> <span class="effort-badge">Средняя сложность</span></div>
+    <p class="rec-rationale">Стоимость доставки — скрытый расход №1, который съедает маржу. Даже простой калькулятор по весу выделит нас среди конкурентов.</p>
+  </div>
+  <div class="rec-card p0">
+    <div class="rec-title"><span class="badge priority-p0">P0 — ВЫСОКИЙ</span> Поиск цен / Исследование конкурентов</div>
+    <div class="rec-meta"><span class="mentions">372 упоминания</span> <span class="effort-badge">Высокая сложность</span></div>
+    <p class="rec-rationale">Знание реальных цен продаж — навык №1, которого не хватает новичкам. Интеграция с API проданных лотов eBay.</p>
+  </div>
+  <div class="rec-card p1">
+    <div class="rec-title"><span class="badge priority-p1">P1 — СРЕДНИЙ</span> Налоговый отчёт</div>
+    <div class="rec-meta"><span class="mentions">32 упоминания + массовая тревога по 1099-K</span> <span class="effort-badge">Средняя сложность</span></div>
+    <p class="rec-rationale">Налоговая отчётность в конце года — серьёзная боль. Автогенерация прибыли/убытков + сводка вычетов из существующих данных.</p>
+  </div>
+  <div class="rec-card p1">
+    <div class="rec-title"><span class="badge priority-p1">P1 — СРЕДНИЙ</span> Массовые операции</div>
+    <div class="rec-meta"><span class="mentions">45 упоминаний</span> <span class="effort-badge">Средняя сложность</span></div>
+    <p class="rec-rationale">Опытные продавцы (наши лучшие пользователи) нуждаются в пакетных обновлениях статусов, массовых изменениях цен, мультивыборе.</p>
+  </div>
+  <div class="rec-card p1">
+    <div class="rec-title"><span class="badge priority-p1">P1 — СРЕДНИЙ</span> Учёт времени по сессиям</div>
+    <div class="rec-meta"><span class="mentions">10 прямых + широкий интерес к $/час</span> <span class="effort-badge">Низкая сложность</span></div>
+    <p class="rec-rationale">Простой таймер для закупочных поездок для расчёта реального почасового дохода. Мало усилий — высокая воспринимаемая ценность.</p>
+  </div>
+  <div class="rec-card p2">
+    <div class="rec-title"><span class="badge priority-p2">P2 — ЖЕЛАТЕЛЬНО</span> Поиск рынков/событий</div>
+    <div class="rec-meta"><span class="mentions">121 упоминание</span> <span class="effort-badge">Высокая сложность</span></div>
+    <p class="rec-rationale">Улучшить существующую геолокацию общими местами от сообщества и расписаниями мероприятий.</p>
+  </div>
+  <div class="rec-card p2">
+    <div class="rec-title"><span class="badge priority-p2">P2 — ЖЕЛАТЕЛЬНО</span> Синхронизация статуса кросс-листинга</div>
+    <div class="rec-meta"><span class="mentions">Часть из 986 упоминаний управления листингами</span> <span class="effort-badge">Очень высокая сложность</span></div>
+    <p class="rec-rationale">Глубокая интеграция с API платформ для автоопределения проданных товаров и синхронизации статуса листинга.</p>
+  </div>
+</div>
+
+<!-- ===== PART 5 ===== -->
+<h2>Часть 5: Валидация маркетинга — что подчёркивать</h2>
+<p class="summary-text">Функции, которые у нас уже есть и которые решают самые частые жалобы:</p>
+
+<div class="marketing-card">
+  <div><div class="marketing-feature">Расчёт прибыли по товарам</div><div class="marketing-problem">Люди считают прибыль вручную в таблицах</div></div>
+  <div class="marketing-volume">454</div>
+</div>
+<div class="marketing-card">
+  <div><div class="marketing-feature">Учёт входных билетов + транспорта</div><div class="marketing-problem">Скрытые расходы не отслеживаются и съедают маржу</div></div>
+  <div class="marketing-volume">609</div>
+</div>
+<div class="marketing-card">
+  <div><div class="marketing-feature">Трекер листингов на 14 платформах</div><div class="marketing-problem">Управление листингами на платформах — боль №1</div></div>
+  <div class="marketing-volume">986</div>
+</div>
+<div class="marketing-card">
+  <div><div class="marketing-feature">Съёмка фото + облачный бэкап</div><div class="marketing-problem">Управление фото и случайные удаления — частая проблема</div></div>
+  <div class="marketing-volume">85</div>
+</div>
+<div class="marketing-card">
+  <div><div class="marketing-feature">Офлайн-first / без аккаунта</div><div class="marketing-problem">Люди не доверяют сложным приложениям с обязательной регистрацией</div></div>
+  <div class="marketing-volume">112</div>
+</div>
+<div class="marketing-card">
+  <div><div class="marketing-feature">Экспорт в Google Sheets</div><div class="marketing-problem">Любители таблиц хотят лёгкий доступ к данным</div></div>
+  <div class="marketing-volume">32</div>
+</div>
+<div class="marketing-card">
+  <div><div class="marketing-feature">Отслеживание дней до продажи</div><div class="marketing-problem">Люди хотят знать, какие товары продаются быстрее</div></div>
+  <div class="marketing-volume">239</div>
+</div>
+<div class="marketing-card">
+  <div><div class="marketing-feature">Мультивалютность</div><div class="marketing-problem">Международным продавцам нужна гибкость валюты</div></div>
+  <div class="marketing-volume">372</div>
+</div>
+
+<footer>
+  <p>Данные получены из анализа обратной связи сообщества Reddit r/Flipping.<br>
+  FlipperHelper — iOS-приложение для перепродавцов. Swift & SwiftUI | iOS 17+ | Офлайн-first.</p>
+</footer>
+
+</body>
+</html>

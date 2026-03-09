@@ -413,13 +413,190 @@ def check_connection() -> bool:
         return False
 
 
+# ============================================
+# Flipping Aggregation Queries
+# ============================================
+
+def get_feedback_items_for_aggregation(feedback_type: str = None) -> List[Dict[str, Any]]:
+    """Get all feedback items, optionally filtered by type."""
+    with get_cursor() as cur:
+        if feedback_type:
+            cur.execute(
+                "SELECT * FROM flipping_feedback_items WHERE feedback_type = %s ORDER BY id",
+                (feedback_type,)
+            )
+        else:
+            cur.execute("SELECT * FROM flipping_feedback_items ORDER BY id")
+        return list(cur.fetchall())
+
+
+def create_aggregation_run() -> int:
+    """Create a new aggregation run record. Returns run ID."""
+    with get_cursor() as cur:
+        cur.execute("""
+            INSERT INTO flipping_aggregation_runs (status) VALUES ('running')
+            RETURNING id
+        """)
+        return cur.fetchone()['id']
+
+
+def update_aggregation_run(run_id: int, items_processed: int, topics_created: int, status: str) -> None:
+    """Update an aggregation run with results."""
+    with get_cursor() as cur:
+        cur.execute("""
+            UPDATE flipping_aggregation_runs
+            SET items_processed = %s, topics_created = %s, status = %s, completed_at = NOW()
+            WHERE id = %s
+        """, (items_processed, topics_created, status, run_id))
+
+
+def insert_topic(run_id: int, topic_data: Dict[str, Any]) -> int:
+    """Insert a topic and return its ID."""
+    with get_cursor() as cur:
+        cur.execute("""
+            INSERT INTO flipping_topics
+                (aggregation_run_id, feedback_type, topic_title, topic_summary,
+                 tools_mentioned, unique_user_count, total_item_count, priority_score)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING id
+        """, (
+            run_id,
+            topic_data['feedback_type'],
+            topic_data['topic_title'],
+            topic_data['topic_summary'],
+            topic_data.get('tools_mentioned', []),
+            topic_data.get('unique_user_count', 0),
+            topic_data.get('total_item_count', 0),
+            topic_data.get('priority_score', 0.0),
+        ))
+        return cur.fetchone()['id']
+
+
+def insert_topic_item_mappings(topic_id: int, item_ids: List[int]) -> None:
+    """Insert mappings between a topic and its feedback items."""
+    if not item_ids:
+        return
+    with get_cursor() as cur:
+        for item_id in item_ids:
+            cur.execute("""
+                INSERT INTO flipping_topic_items (topic_id, feedback_item_id)
+                VALUES (%s, %s)
+                ON CONFLICT (topic_id, feedback_item_id) DO NOTHING
+            """, (topic_id, item_id))
+
+
+def update_topic_stats(topic_id: int) -> None:
+    """Recompute stats for a topic from its linked items."""
+    with get_cursor() as cur:
+        cur.execute("""
+            UPDATE flipping_topics t SET
+                total_item_count = sub.total_count,
+                unique_user_count = sub.unique_users
+            FROM (
+                SELECT
+                    ti.topic_id,
+                    COUNT(fi.id) as total_count,
+                    COUNT(DISTINCT fi.author) as unique_users
+                FROM flipping_topic_items ti
+                JOIN flipping_feedback_items fi ON fi.id = ti.feedback_item_id
+                WHERE ti.topic_id = %s
+                GROUP BY ti.topic_id
+            ) sub
+            WHERE t.id = sub.topic_id
+        """, (topic_id,))
+
+
+def get_topics_for_report(feedback_type: str = None, limit: int = 20) -> List[Dict[str, Any]]:
+    """Get topics sorted by priority score, optionally filtered by type."""
+    with get_cursor() as cur:
+        if feedback_type:
+            cur.execute("""
+                SELECT * FROM flipping_topics
+                WHERE feedback_type = %s
+                ORDER BY priority_score DESC
+                LIMIT %s
+            """, (feedback_type, limit))
+        else:
+            cur.execute("""
+                SELECT * FROM flipping_topics
+                ORDER BY priority_score DESC
+                LIMIT %s
+            """, (limit,))
+        return list(cur.fetchall())
+
+
+def get_topic_evidence(topic_id: int, limit: int = 5) -> List[Dict[str, Any]]:
+    """Get top feedback items (evidence/quotes) for a topic."""
+    with get_cursor() as cur:
+        cur.execute("""
+            SELECT fi.*
+            FROM flipping_feedback_items fi
+            JOIN flipping_topic_items ti ON fi.id = ti.feedback_item_id
+            WHERE ti.topic_id = %s
+            ORDER BY fi.confidence DESC, fi.sentiment_intensity DESC
+            LIMIT %s
+        """, (topic_id, limit))
+        return list(cur.fetchall())
+
+
+def get_flipping_report_stats() -> Dict[str, Any]:
+    """Get aggregate stats for the flipping report."""
+    with get_cursor() as cur:
+        cur.execute("SELECT COUNT(*) as count FROM flipping_post_status WHERE llm_processed = TRUE")
+        posts_analyzed = cur.fetchone()['count']
+
+        cur.execute("SELECT COUNT(*) as count FROM flipping_feedback_items")
+        total_items = cur.fetchone()['count']
+
+        cur.execute("SELECT COUNT(DISTINCT author) as count FROM flipping_feedback_items WHERE author IS NOT NULL")
+        unique_users = cur.fetchone()['count']
+
+        cur.execute("SELECT COUNT(*) as count FROM flipping_topics")
+        total_topics = cur.fetchone()['count']
+
+        cur.execute("""
+            SELECT feedback_type, COUNT(*) as count
+            FROM flipping_feedback_items
+            GROUP BY feedback_type
+        """)
+        by_type = {row['feedback_type']: row['count'] for row in cur.fetchall()}
+
+        return {
+            'posts_analyzed': posts_analyzed,
+            'total_items': total_items,
+            'unique_users': unique_users,
+            'total_topics': total_topics,
+            'items_by_type': by_type,
+        }
+
+
+def get_top_vocal_users(limit: int = 20) -> List[Dict[str, Any]]:
+    """Get the most vocal users with their key concerns."""
+    with get_cursor() as cur:
+        cur.execute("""
+            SELECT
+                author,
+                COUNT(*) as item_count,
+                COUNT(DISTINCT feedback_type) as type_count,
+                array_agg(DISTINCT tool_or_area) FILTER (WHERE tool_or_area IS NOT NULL) as tools,
+                array_agg(DISTINCT feedback_type) as types
+            FROM flipping_feedback_items
+            WHERE author IS NOT NULL AND author != '[deleted]'
+            GROUP BY author
+            ORDER BY item_count DESC
+            LIMIT %s
+        """, (limit,))
+        return list(cur.fetchall())
+
+
 def check_tables_exist() -> Dict[str, bool]:
     """Check if required tables exist."""
     tables = [
         'reddit_posts', 'reddit_comments', 'subreddit_classifiers',
         'vintage_post_status', 'vintage_sources',
         'sex_post_status', 'sex_solutions',
-        'housing_post_status', 'housing_experiences'
+        'housing_post_status', 'housing_experiences',
+        'flipping_post_status', 'flipping_feedback_items',
     ]
     results = {}
 
