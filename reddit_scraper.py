@@ -32,9 +32,11 @@ SUBREDDITS = [
     "smallbusinessuk",
     "HousingUK",
     "FlippingUK",
+    "Flipping",
     "eBaySellerAdvice",
     "wildcampingintheuk",
-
+    "thrifting",
+    "ThriftStoreHauls",
 ]
 
 DATA_DIR = Path(__file__).parent / "data"

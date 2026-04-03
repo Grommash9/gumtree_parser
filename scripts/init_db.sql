@@ -41,10 +41,11 @@ CREATE TABLE IF NOT EXISTS reddit_comments (
 
 CREATE INDEX IF NOT EXISTS idx_comments_post ON reddit_comments(post_id);
 
--- Subreddit to classifier mapping
+-- Subreddit to classifier mapping (many-to-many: a subreddit can have multiple classifiers)
 CREATE TABLE IF NOT EXISTS subreddit_classifiers (
-    subreddit VARCHAR(100) PRIMARY KEY,
-    classifier_type VARCHAR(50) NOT NULL CHECK (classifier_type IN ('vintage', 'sex', 'housing', 'flipping'))
+    subreddit VARCHAR(100) NOT NULL,
+    classifier_type VARCHAR(50) NOT NULL CHECK (classifier_type IN ('vintage', 'sex', 'housing', 'flipping', 'flipping_jokes')),
+    PRIMARY KEY (subreddit, classifier_type)
 );
 
 
@@ -245,6 +246,48 @@ CREATE TABLE IF NOT EXISTS flipping_topic_items (
 
 
 -- ============================================
+-- Flipping Jokes/Memes Classification Tables
+-- ============================================
+
+-- Processing status for flipping_jokes (one per post)
+CREATE TABLE IF NOT EXISTS flipping_jokes_post_status (
+    id SERIAL PRIMARY KEY,
+    post_id VARCHAR(20) UNIQUE REFERENCES reddit_posts(post_id) ON DELETE CASCADE,
+    stage_0_status VARCHAR(20) DEFAULT 'pending',
+    is_relevant BOOLEAN,
+    has_humor BOOLEAN DEFAULT FALSE,
+    llm_processed BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_flipping_jokes_status_pending ON flipping_jokes_post_status(llm_processed) WHERE llm_processed = FALSE;
+
+-- Extracted splash texts (MULTIPLE per post - one row per joke/one-liner found)
+CREATE TABLE IF NOT EXISTS flipping_jokes_items (
+    id SERIAL PRIMARY KEY,
+    post_id VARCHAR(20) REFERENCES reddit_posts(post_id) ON DELETE CASCADE,
+    splash_text TEXT NOT NULL,
+    source_type VARCHAR(20) DEFAULT 'inspired'
+        CHECK (source_type IN ('direct_quote', 'inspired')),
+    humor_category VARCHAR(30) NOT NULL
+        CHECK (humor_category IN (
+            'death_pile', 'money', 'sourcing', 'listing_fatigue',
+            'buyers', 'lifestyle', 'shipping', 'family', 'finds',
+            'self_deprecating'
+        )),
+    original_quote TEXT,
+    author VARCHAR(100),
+    confidence FLOAT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_flipping_jokes_items_post ON flipping_jokes_items(post_id);
+CREATE INDEX IF NOT EXISTS idx_flipping_jokes_items_category ON flipping_jokes_items(humor_category);
+CREATE INDEX IF NOT EXISTS idx_flipping_jokes_items_confidence ON flipping_jokes_items(confidence DESC);
+
+
+-- ============================================
 -- Utility Views
 -- ============================================
 
@@ -261,6 +304,7 @@ SELECT
         WHEN sc.classifier_type = 'sex' THEN ss.llm_processed
         WHEN sc.classifier_type = 'housing' THEN hs.llm_processed
         WHEN sc.classifier_type = 'flipping' THEN fs.llm_processed
+        WHEN sc.classifier_type = 'flipping_jokes' THEN fjs.llm_processed
         ELSE NULL
     END as llm_processed
 FROM reddit_posts p
@@ -268,7 +312,8 @@ LEFT JOIN subreddit_classifiers sc ON p.subreddit = sc.subreddit
 LEFT JOIN vintage_post_status vs ON p.post_id = vs.post_id AND sc.classifier_type = 'vintage'
 LEFT JOIN sex_post_status ss ON p.post_id = ss.post_id AND sc.classifier_type = 'sex'
 LEFT JOIN housing_post_status hs ON p.post_id = hs.post_id AND sc.classifier_type = 'housing'
-LEFT JOIN flipping_post_status fs ON p.post_id = fs.post_id AND sc.classifier_type = 'flipping';
+LEFT JOIN flipping_post_status fs ON p.post_id = fs.post_id AND sc.classifier_type = 'flipping'
+LEFT JOIN flipping_jokes_post_status fjs ON p.post_id = fjs.post_id AND sc.classifier_type = 'flipping_jokes';
 
 
 -- ============================================
@@ -316,6 +361,14 @@ BEGIN
             (SELECT COUNT(*) FROM reddit_posts p JOIN subreddit_classifiers sc ON p.subreddit = sc.subreddit WHERE sc.classifier_type = 'flipping') -
             (SELECT COUNT(*) FROM flipping_post_status WHERE llm_processed = TRUE),
             (SELECT COUNT(*) FROM flipping_feedback_items);
+    ELSIF p_classifier_type = 'flipping_jokes' THEN
+        RETURN QUERY
+        SELECT
+            (SELECT COUNT(*) FROM reddit_posts p JOIN subreddit_classifiers sc ON p.subreddit = sc.subreddit WHERE sc.classifier_type = 'flipping_jokes'),
+            (SELECT COUNT(*) FROM flipping_jokes_post_status WHERE llm_processed = TRUE),
+            (SELECT COUNT(*) FROM reddit_posts p JOIN subreddit_classifiers sc ON p.subreddit = sc.subreddit WHERE sc.classifier_type = 'flipping_jokes') -
+            (SELECT COUNT(*) FROM flipping_jokes_post_status WHERE llm_processed = TRUE),
+            (SELECT COUNT(*) FROM flipping_jokes_items);
     END IF;
 END;
 $$ LANGUAGE plpgsql;

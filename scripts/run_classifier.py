@@ -31,6 +31,7 @@ from llm_classifier.vintage.classifier import VintageClassifier
 from llm_classifier.sex.classifier import SexClassifier
 from llm_classifier.housing.classifier import HousingClassifier
 from llm_classifier.flipping.classifier import FlippingClassifier
+from llm_classifier.flipping_jokes.classifier import FlippingJokesClassifier
 
 
 CLASSIFIERS = {
@@ -38,6 +39,7 @@ CLASSIFIERS = {
     'sex': SexClassifier,
     'housing': HousingClassifier,
     'flipping': FlippingClassifier,
+    'flipping_jokes': FlippingJokesClassifier,
 }
 
 

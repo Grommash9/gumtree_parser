@@ -308,7 +308,7 @@ def set_subreddit_classifier(subreddit: str, classifier_type: str) -> None:
         cur.execute("""
             INSERT INTO subreddit_classifiers (subreddit, classifier_type)
             VALUES (%s, %s)
-            ON CONFLICT (subreddit) DO UPDATE SET classifier_type = EXCLUDED.classifier_type
+            ON CONFLICT (subreddit, classifier_type) DO NOTHING
         """, (subreddit, classifier_type))
 
 
@@ -597,6 +597,7 @@ def check_tables_exist() -> Dict[str, bool]:
         'sex_post_status', 'sex_solutions',
         'housing_post_status', 'housing_experiences',
         'flipping_post_status', 'flipping_feedback_items',
+        'flipping_jokes_post_status', 'flipping_jokes_items',
     ]
     results = {}
 
